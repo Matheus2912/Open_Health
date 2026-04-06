@@ -1,0 +1,15 @@
+.idea/
+
+# Backend
+Backend/.idea/
+Backend/target/
+
+# Frontend
+Frontend/Open_Health_App/.expo/
+Frontend/Open_Health_App/.vscode/
+Frontend/Open_Health_App/node_modules/
+Frontend/Open_Health_App/dist/
+
+# OS
+Thumbs.db
+Desktop.ini
