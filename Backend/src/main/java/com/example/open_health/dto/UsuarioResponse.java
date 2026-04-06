@@ -1,4 +1,4 @@
-package dto;
+package com.example.open_health.dto;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -9,8 +9,7 @@ public record UsuarioResponse(
         String email,
         String cpf,
         String tipoSanguineo,
+        String sexo,
         LocalDate dataNascimento
 ) {
-    // Você pode criar um construtor customizado aqui depois
-    // para converter facilmente a Entidade Usuario neste Response
 }

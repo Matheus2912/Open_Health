@@ -1,4 +1,4 @@
-package dto;
+package com.example.open_health.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

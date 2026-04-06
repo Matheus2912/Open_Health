@@ -1,6 +1,11 @@
-package domain;
+package com.example.open_health.domain;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,7 +15,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "usuarios")
-@Data // O Lombok cria os Getters e Setters automaticamente
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Usuario {
@@ -25,14 +30,17 @@ public class Usuario {
     @Column(nullable = false, unique = true, length = 150)
     private String email;
 
-    @Column(nullable = false, unique = true, length = 14) // Tamanho para guardar o formato 000.000.000-00
+    @Column(nullable = false, unique = true, length = 14)
     private String cpf;
 
-    @Column(nullable = true, length = 3) // Opcional, como você pediu (ex: A+, AB-, O+)
+    @Column(nullable = true, length = 3)
     private String tipoSanguineo;
 
+    @Column(nullable = true, length = 20)
+    private String sexo;
+
     @Column(nullable = false)
-    private LocalDate dataNascimento; // Substituindo a "Idade" fixa
+    private LocalDate dataNascimento;
 
     @Column(nullable = false)
     private String senha;

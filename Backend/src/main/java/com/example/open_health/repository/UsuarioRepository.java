@@ -1,6 +1,6 @@
-package repository;
+package com.example.open_health.repository;
 
-import domain.Usuario;
+import com.example.open_health.domain.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
