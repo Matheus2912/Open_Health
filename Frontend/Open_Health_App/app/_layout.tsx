@@ -1,6 +1,28 @@
-import { Stack } from 'expo-router';
+import { Stack, useRouter, useSegments } from 'expo-router';
+import { useEffect } from 'react';
 
-export default function RootLayout() {
+import { AuthProvider, useAuth } from '@/features/auth/context/AuthContext';
+
+function AppNavigator() {
+    const router = useRouter();
+    const segments = useSegments();
+    const { isAuthenticated } = useAuth();
+
+    useEffect(() => {
+        const firstSegment = segments[0];
+        const inProtectedArea = firstSegment === '(tabs)';
+        const inPublicArea = firstSegment === undefined || firstSegment === 'login' || firstSegment === 'cadastro';
+
+        if (!isAuthenticated && inProtectedArea) {
+            router.replace('/login');
+            return;
+        }
+
+        if (isAuthenticated && inPublicArea) {
+            router.replace('/(tabs)');
+        }
+    }, [isAuthenticated, router, segments]);
+
     return (
         <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="index" />
@@ -8,5 +30,13 @@ export default function RootLayout() {
             <Stack.Screen name="cadastro" />
             <Stack.Screen name="(tabs)" />
         </Stack>
+    );
+}
+
+export default function RootLayout() {
+    return (
+        <AuthProvider>
+            <AppNavigator />
+        </AuthProvider>
     );
 }

@@ -4,7 +4,6 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import org.hibernate.validator.constraints.br.CPF;
 
 import java.time.LocalDate;
 
@@ -17,7 +16,6 @@ public record UsuarioRequest(
         String email,
 
         @NotBlank(message = "O CPF e obrigatorio")
-        @CPF(message = "CPF invalido")
         String cpf,
 
         String tipoSanguineo,

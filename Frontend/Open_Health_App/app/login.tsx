@@ -1,9 +1,33 @@
 import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useState } from 'react';
+import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+
+import { useAuth } from '@/features/auth/context/AuthContext';
 
 export default function LoginScreen() {
     const router = useRouter();
+    const { isLoading, login } = useAuth();
+    const [email, setEmail] = useState('');
+    const [senha, setSenha] = useState('');
+    const [erro, setErro] = useState('');
+
+    async function handleLogin() {
+        if (!email.trim() || !senha.trim()) {
+            setErro('Preencha e-mail e senha.');
+            return;
+        }
+
+        try {
+            setErro('');
+            await login({
+                email: email.trim(),
+                senha,
+            });
+        } catch (error) {
+            setErro(error instanceof Error ? error.message : 'Nao foi possivel entrar.');
+        }
+    }
 
     return (
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
@@ -27,17 +51,22 @@ export default function LoginScreen() {
                             placeholder="seu@email.com"
                             keyboardType="email-address"
                             autoCapitalize="none"
+                            autoCorrect={false}
+                            value={email}
+                            onChangeText={setEmail}
                         />
                     </View>
 
                     <Text style={styles.label}>Senha</Text>
                     <View style={styles.inputContainer}>
                         <Feather name="lock" size={20} color="#94A3B8" style={styles.inputIcon} />
-                        <TextInput style={styles.input} placeholder="********" secureTextEntry />
+                        <TextInput style={styles.input} placeholder="********" secureTextEntry value={senha} onChangeText={setSenha} />
                     </View>
 
-                    <TouchableOpacity style={styles.primaryButton} onPress={() => router.replace('/(tabs)')}>
-                        <Text style={styles.primaryButtonText}>Entrar</Text>
+                    {erro ? <Text style={styles.errorText}>{erro}</Text> : null}
+
+                    <TouchableOpacity style={[styles.primaryButton, isLoading && styles.primaryButtonDisabled]} onPress={handleLogin} disabled={isLoading}>
+                        {isLoading ? <ActivityIndicator color="#FFF" /> : <Text style={styles.primaryButtonText}>Entrar</Text>}
                     </TouchableOpacity>
 
                     <TouchableOpacity style={styles.linkButton} onPress={() => router.push('/cadastro')}>
@@ -65,8 +94,10 @@ const styles = StyleSheet.create({
     inputIcon: { marginRight: 12 },
     input: { flex: 1, height: '100%', fontSize: 16, color: '#0F172A' },
     primaryButton: { backgroundColor: '#0EA5E9', padding: 16, borderRadius: 12, alignItems: 'center', marginTop: 32 },
+    primaryButtonDisabled: { opacity: 0.7 },
     primaryButtonText: { color: '#FFF', fontSize: 16, fontWeight: '600' },
     linkButton: { alignItems: 'center', marginTop: 24 },
     linkText: { color: '#64748B', fontSize: 14 },
-    linkTextBold: { color: '#0EA5E9', fontWeight: '600' }
+    linkTextBold: { color: '#0EA5E9', fontWeight: '600' },
+    errorText: { color: '#DC2626', marginTop: 16, fontSize: 14 },
 });

@@ -1,7 +1,9 @@
 import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+
+import { useAuth } from '@/features/auth/context/AuthContext';
 
 const bloodTypeOptions = ['Nao selecionado', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] as const;
 const sexOptions = ['Masculino', 'Feminino', 'Outro'] as const;
@@ -18,11 +20,134 @@ function formatBirthDate(rawValue: string) {
     return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
 }
 
+function formatCpf(rawValue: string) {
+    const digits = rawValue.replace(/\D/g, '').slice(0, 11);
+
+    if (digits.length <= 3) {
+        return digits;
+    }
+    if (digits.length <= 6) {
+        return `${digits.slice(0, 3)}.${digits.slice(3)}`;
+    }
+    if (digits.length <= 9) {
+        return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6)}`;
+    }
+    return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9)}`;
+}
+
+function normalizeCpf(value: string) {
+    return value.replace(/\D/g, '');
+}
+
+function isValidCpf(value: string) {
+    const cpf = normalizeCpf(value);
+
+    if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) {
+        return false;
+    }
+
+    let sum = 0;
+    for (let index = 0; index < 9; index += 1) {
+        sum += Number(cpf[index]) * (10 - index);
+    }
+
+    let verifier = (sum * 10) % 11;
+    if (verifier === 10) {
+        verifier = 0;
+    }
+
+    if (verifier !== Number(cpf[9])) {
+        return false;
+    }
+
+    sum = 0;
+    for (let index = 0; index < 10; index += 1) {
+        sum += Number(cpf[index]) * (11 - index);
+    }
+
+    verifier = (sum * 10) % 11;
+    if (verifier === 10) {
+        verifier = 0;
+    }
+
+    return verifier === Number(cpf[10]);
+}
+
+function toIsoDate(value: string) {
+    const [day, month, year] = value.split('/');
+    if (!day || !month || !year || year.length !== 4) {
+        return null;
+    }
+
+    const normalizedDay = Number(day);
+    const normalizedMonth = Number(month);
+    const normalizedYear = Number(year);
+
+    const parsedDate = new Date(normalizedYear, normalizedMonth - 1, normalizedDay);
+    const isValidDate =
+        parsedDate.getFullYear() === normalizedYear &&
+        parsedDate.getMonth() === normalizedMonth - 1 &&
+        parsedDate.getDate() === normalizedDay;
+
+    if (!isValidDate) {
+        return null;
+    }
+
+    return `${year}-${month}-${day}`;
+}
+
 export default function CadastroScreen() {
     const router = useRouter();
+    const { isLoading, register } = useAuth();
     const [birthDate, setBirthDate] = useState('');
     const [bloodType, setBloodType] = useState<(typeof bloodTypeOptions)[number]>('Nao selecionado');
     const [sex, setSex] = useState<(typeof sexOptions)[number]>('Masculino');
+    const [nomeCompleto, setNomeCompleto] = useState('');
+    const [email, setEmail] = useState('');
+    const [cpf, setCpf] = useState('');
+    const [senha, setSenha] = useState('');
+    const [confirmarSenha, setConfirmarSenha] = useState('');
+    const [erro, setErro] = useState('');
+
+    async function handleRegister() {
+        const dataNascimento = toIsoDate(birthDate);
+
+        if (!nomeCompleto.trim() || !email.trim() || !cpf.trim() || !birthDate.trim() || !senha || !confirmarSenha) {
+            setErro('Preencha todos os campos obrigatorios.');
+            return;
+        }
+
+        if (!dataNascimento) {
+            setErro('Digite a data no formato DD/MM/AAAA.');
+            return;
+        }
+
+        if (!isValidCpf(cpf)) {
+            setErro('Digite um CPF valido.');
+            return;
+        }
+
+        if (senha !== confirmarSenha) {
+            setErro('As senhas nao coincidem.');
+            return;
+        }
+
+        try {
+            setErro('');
+            await register({
+                nomeCompleto: nomeCompleto.trim(),
+                email: email.trim(),
+                cpf: normalizeCpf(cpf),
+                tipoSanguineo: bloodType === 'Nao selecionado' ? undefined : bloodType,
+                dataNascimento,
+                sexo: sex,
+                senha,
+                confirmarSenha,
+            });
+        } catch (error) {
+            setErro(error instanceof Error ? error.message : 'Nao foi possivel criar a conta.');
+        }
+    }
 
     return (
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
@@ -41,19 +166,19 @@ export default function CadastroScreen() {
                     <Text style={styles.label}>Nome Completo</Text>
                     <View style={styles.inputContainer}>
                         <Feather name="user" size={20} color="#94A3B8" style={styles.inputIcon} />
-                        <TextInput style={styles.input} placeholder="Seu nome completo" />
+                        <TextInput style={styles.input} placeholder="Seu nome completo" value={nomeCompleto} onChangeText={setNomeCompleto} />
                     </View>
 
                     <Text style={styles.label}>Email</Text>
                     <View style={styles.inputContainer}>
                         <Feather name="mail" size={20} color="#94A3B8" style={styles.inputIcon} />
-                        <TextInput style={styles.input} placeholder="seu@email.com" keyboardType="email-address" autoCapitalize="none" />
+                        <TextInput style={styles.input} placeholder="seu@email.com" keyboardType="email-address" autoCapitalize="none" autoCorrect={false} value={email} onChangeText={setEmail} />
                     </View>
 
                     <Text style={styles.label}>CPF</Text>
                     <View style={styles.inputContainer}>
                         <Feather name="file-text" size={20} color="#94A3B8" style={styles.inputIcon} />
-                        <TextInput style={styles.input} placeholder="000.000.000-00" keyboardType="numeric" />
+                        <TextInput style={styles.input} placeholder="000.000.000-00" keyboardType="numeric" value={cpf} onChangeText={(value) => setCpf(formatCpf(value))} maxLength={14} />
                     </View>
 
                     <View style={styles.medicalBox}>
@@ -102,22 +227,24 @@ export default function CadastroScreen() {
                     <Text style={styles.label}>Senha</Text>
                     <View style={styles.inputContainer}>
                         <Feather name="lock" size={20} color="#94A3B8" style={styles.inputIcon} />
-                        <TextInput style={styles.input} placeholder="********" secureTextEntry />
+                        <TextInput style={styles.input} placeholder="********" secureTextEntry value={senha} onChangeText={setSenha} />
                     </View>
 
                     <Text style={styles.label}>Confirmar Senha</Text>
                     <View style={styles.inputContainer}>
                         <Feather name="lock" size={20} color="#94A3B8" style={styles.inputIcon} />
-                        <TextInput style={styles.input} placeholder="********" secureTextEntry />
+                        <TextInput style={styles.input} placeholder="********" secureTextEntry value={confirmarSenha} onChangeText={setConfirmarSenha} />
                     </View>
 
-                    <TouchableOpacity style={styles.primaryButton} onPress={() => router.replace('/(tabs)')}>
-                        <Text style={styles.primaryButtonText}>Criar Conta</Text>
+                    {erro ? <Text style={styles.errorText}>{erro}</Text> : null}
+
+                    <TouchableOpacity style={[styles.primaryButton, isLoading && styles.primaryButtonDisabled]} onPress={handleRegister} disabled={isLoading}>
+                        {isLoading ? <ActivityIndicator color="#FFF" /> : <Text style={styles.primaryButtonText}>Criar Conta</Text>}
                     </TouchableOpacity>
 
                     <TouchableOpacity style={styles.linkButton} onPress={() => router.push('/login')}>
                         <Text style={styles.linkText}>
-                            Ja tem uma conta? <Text style={styles.linkTextBold}>Faca login</Text>
+                            Ja tem uma conta? <Text style={styles.linkTextBold}>Faça login</Text>
                         </Text>
                     </TouchableOpacity>
                 </View>
@@ -164,8 +291,10 @@ const styles = StyleSheet.create({
         color: '#FFFFFF',
     },
     primaryButton: { backgroundColor: '#0EA5E9', padding: 16, borderRadius: 12, alignItems: 'center', marginTop: 32 },
+    primaryButtonDisabled: { opacity: 0.7 },
     primaryButtonText: { color: '#FFF', fontSize: 16, fontWeight: '600' },
     linkButton: { alignItems: 'center', marginTop: 24 },
     linkText: { color: '#64748B', fontSize: 14 },
     linkTextBold: { color: '#0EA5E9', fontWeight: '600' },
+    errorText: { color: '#DC2626', marginTop: 16, fontSize: 14 },
 });
