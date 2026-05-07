@@ -1,0 +1,24 @@
+Starting project at C:\Users\souza\Documents\Facens\Engenharia de Software\Open_Health_Project\Frontend\Open_Health_App
+React Compiler enabled
+Starting Metro Bundler
+Waiting on http://localhost:8081
+Logs for your project will appear below.
+Web node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 94.0% (862/889)
+λ node_modules\expo-router\node\render.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 94.1% (946/975)
+λ Bundled 3801ms node_modules\expo-router\node\render.js (983 modules)
+Web node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 94.0% (862/889)
+Web Bundled 7160ms node_modules\expo-router\entry.js (889 modules)
+Web Bundled 1002ms node_modules\expo-router\entry.js (859 modules)
+ LOG  [web] Logs will appear in the browser console
+Web node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ Bundled 97ms node_modules\expo-router\node\render.js (1 module)
+Web node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web Bundled 3598ms node_modules\expo-router\entry.js (1 module)
+Web Bundled 90ms node_modules\expo-router\entry.js (1 module)
+ LOG  [web] Logs will appear in the browser console
+Web node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ Bundled 90ms node_modules\expo-router\node\render.js (1 module)
+Web Bundled 1156ms node_modules\expo-router\entry.js (1 module)
+Web Bundled 62ms node_modules\expo-router\entry.js (1 module)
+ LOG  [web] Logs will appear in the browser console
