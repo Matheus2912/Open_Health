@@ -1,6 +1,7 @@
 import { Feather } from '@expo/vector-icons';
 
 export type HealthRecordType = 'allergy' | 'medication' | 'vaccination' | 'condition';
+export type DashboardActionType = HealthRecordType | 'exam';
 
 export type HealthRecordSummary = {
     type: HealthRecordType;
@@ -11,7 +12,7 @@ export type HealthRecordSummary = {
 };
 
 export type HealthRecordAction = {
-    type: HealthRecordType;
+    type: DashboardActionType;
     label: string;
     icon: keyof typeof Feather.glyphMap;
     iconColor: string;

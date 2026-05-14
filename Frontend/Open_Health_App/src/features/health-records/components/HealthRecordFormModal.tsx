@@ -3,7 +3,14 @@ import { ActivityIndicator, Modal, Pressable, StyleSheet, Text, TextInput, Touch
 
 import { HealthRecordType } from '@/features/dashboard/types/dashboard.type';
 import { OptionSelect } from '@/features/health-records/components/OptionSelect';
-import { HealthRecordRequestByType } from '@/features/health-records/types/health-record.type';
+import {
+    AllergyResponse,
+    ConditionResponse,
+    HealthRecordRequestByType,
+    HealthRecordResponseByType,
+    MedicationResponse,
+    VaccinationResponse,
+} from '@/features/health-records/types/health-record.type';
 import { formatBirthDateInput, toIsoDate } from '@/features/health-records/utils/record-formatters';
 
 type HealthRecordFormModalProps = {
@@ -11,6 +18,7 @@ type HealthRecordFormModalProps = {
     type: HealthRecordType | null;
     isSubmitting: boolean;
     error: string;
+    initialRecord?: HealthRecordResponseByType[HealthRecordType] | null;
     onClose: () => void;
     onSubmit: <TType extends HealthRecordType>(type: TType, payload: HealthRecordRequestByType[TType]) => Promise<void>;
 };
@@ -26,7 +34,23 @@ const titleByType: Record<HealthRecordType, string> = {
     vaccination: 'Adicionar Vacinacao',
 };
 
-export function HealthRecordFormModal({ visible, type, isSubmitting, error, onClose, onSubmit }: HealthRecordFormModalProps) {
+const editTitleByType: Record<HealthRecordType, string> = {
+    condition: 'Editar Registro de Saude',
+    medication: 'Editar Medicamento',
+    allergy: 'Editar Alergia',
+    vaccination: 'Editar Vacinacao',
+};
+
+function isoToDisplayDate(value?: string) {
+    if (!value) {
+        return '';
+    }
+
+    const [year, month, day] = value.split('-');
+    return day && month && year ? `${day}/${month}/${year}` : value;
+}
+
+export function HealthRecordFormModal({ visible, type, isSubmitting, error, initialRecord, onClose, onSubmit }: HealthRecordFormModalProps) {
     const [tipoProblema, setTipoProblema] = useState(problemTypeOptions[0]);
     const [descricao, setDescricao] = useState('');
     const [medicamentoPosologia, setMedicamentoPosologia] = useState('');
@@ -37,18 +61,49 @@ export function HealthRecordFormModal({ visible, type, isSubmitting, error, onCl
     const [statusVacinacao, setStatusVacinacao] = useState(vaccinationStatusOptions[0]);
     const [validationError, setValidationError] = useState('');
 
-    const title = useMemo(() => (type ? titleByType[type] : ''), [type]);
+    const title = useMemo(() => (type ? (initialRecord ? editTitleByType[type] : titleByType[type]) : ''), [initialRecord, type]);
 
     useEffect(() => {
         if (!visible) {
+            setTipoProblema(problemTypeOptions[0]);
             setDescricao('');
             setMedicamentoPosologia('');
             setNomeAlergia('');
+            setGravidade(allergySeverityOptions[0]);
             setNomeVacina('');
             setDataVacina('');
+            setStatusVacinacao(vaccinationStatusOptions[0]);
             setValidationError('');
+            return;
         }
-    }, [visible]);
+
+        if (!type || !initialRecord) {
+            return;
+        }
+
+        if (type === 'condition') {
+            const condition = initialRecord as ConditionResponse;
+            setTipoProblema(condition.tipoProblemaDescricao || problemTypeOptions[0]);
+            setDescricao(condition.descricao);
+        }
+
+        if (type === 'medication') {
+            setMedicamentoPosologia((initialRecord as MedicationResponse).medicamentoPosologia);
+        }
+
+        if (type === 'allergy') {
+            const allergy = initialRecord as AllergyResponse;
+            setNomeAlergia(allergy.nome);
+            setGravidade(allergy.gravidadeDescricao || allergySeverityOptions[0]);
+        }
+
+        if (type === 'vaccination') {
+            const vaccination = initialRecord as VaccinationResponse;
+            setNomeVacina(vaccination.nomeVacina);
+            setDataVacina(isoToDisplayDate(vaccination.data));
+            setStatusVacinacao(vaccination.statusDescricao || vaccinationStatusOptions[0]);
+        }
+    }, [initialRecord, type, visible]);
 
     const handleSubmit = async () => {
         if (!type) {
@@ -159,7 +214,7 @@ export function HealthRecordFormModal({ visible, type, isSubmitting, error, onCl
                     {validationError || error ? <Text style={styles.errorText}>{validationError || error}</Text> : null}
 
                     <TouchableOpacity style={[styles.submitButton, isSubmitting && styles.submitButtonDisabled]} onPress={handleSubmit} disabled={isSubmitting}>
-                        {isSubmitting ? <ActivityIndicator color="#FFF" /> : <Text style={styles.submitText}>Salvar Registro</Text>}
+                        {isSubmitting ? <ActivityIndicator color="#FFF" /> : <Text style={styles.submitText}>{initialRecord ? 'Salvar Alteracoes' : 'Salvar Registro'}</Text>}
                     </TouchableOpacity>
                 </View>
             </View>

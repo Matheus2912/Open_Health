@@ -47,6 +47,7 @@ function mapRecordToListItem<TType extends HealthRecordType>(
             id: allergy.id,
             primaryText: allergy.nome,
             secondaryText: allergy.gravidadeDescricao,
+            originalRecord: allergy,
         };
     }
 
@@ -55,6 +56,7 @@ function mapRecordToListItem<TType extends HealthRecordType>(
         return {
             id: medication.id,
             primaryText: medication.medicamentoPosologia,
+            originalRecord: medication,
         };
     }
 
@@ -64,6 +66,7 @@ function mapRecordToListItem<TType extends HealthRecordType>(
             id: vaccination.id,
             primaryText: vaccination.nomeVacina,
             secondaryText: `${vaccination.data} - ${vaccination.statusDescricao}`,
+            originalRecord: vaccination,
         };
     }
 
@@ -72,5 +75,6 @@ function mapRecordToListItem<TType extends HealthRecordType>(
         id: condition.id,
         primaryText: condition.tipoProblemaDescricao,
         secondaryText: condition.descricao,
+        originalRecord: condition,
     };
 }

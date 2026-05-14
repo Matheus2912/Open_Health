@@ -7,28 +7,48 @@ import { HealthRecordListItem } from '@/features/health-records/types/health-rec
 type HealthRecordCardProps = {
     record: HealthRecordSummary;
     items: HealthRecordListItem[];
+    isExpanded: boolean;
+    onToggle: () => void;
+    onEdit: (item: HealthRecordListItem) => void;
+    onDelete: (item: HealthRecordListItem) => void;
 };
 
-export function HealthRecordCard({ record, items }: HealthRecordCardProps) {
+export function HealthRecordCard({ record, items, isExpanded, onToggle, onEdit, onDelete }: HealthRecordCardProps) {
     return (
-        <TouchableOpacity style={styles.card}>
-            <View style={styles.cardHeader}>
-                <Feather name={record.icon} size={20} color={record.iconColor} />
-                <Text style={styles.cardTitle}>{record.title}</Text>
-            </View>
-            {items.length === 0 ? (
+        <View style={styles.card}>
+            <TouchableOpacity style={styles.cardHeader} onPress={onToggle}>
+                <View style={styles.titleArea}>
+                    <Feather name={record.icon} size={20} color={record.iconColor} />
+                    <View style={styles.titleTextArea}>
+                        <Text style={styles.cardTitle}>{record.title}</Text>
+                        <Text style={styles.cardSummary}>{items.length} cadastrado{items.length === 1 ? '' : 's'}</Text>
+                    </View>
+                </View>
+                <Feather name={isExpanded ? 'chevron-up' : 'chevron-down'} size={20} color="#64748B" />
+            </TouchableOpacity>
+            {isExpanded && items.length === 0 ? (
                 <Text style={styles.cardContent}>{record.emptyText}</Text>
             ) : (
-                <View style={styles.recordList}>
+                isExpanded ? <View style={styles.recordList}>
                     {items.map((item) => (
                         <View key={item.id} style={styles.recordItem}>
-                            <Text style={styles.recordPrimary}>{item.primaryText}</Text>
-                            {item.secondaryText ? <Text style={styles.recordSecondary}>{item.secondaryText}</Text> : null}
+                            <View style={styles.recordTextArea}>
+                                <Text style={styles.recordPrimary}>{item.primaryText}</Text>
+                                {item.secondaryText ? <Text style={styles.recordSecondary}>{item.secondaryText}</Text> : null}
+                            </View>
+                            <View style={styles.recordActions}>
+                                <TouchableOpacity style={styles.iconButton} onPress={() => onEdit(item)}>
+                                    <Feather name="edit-2" size={16} color="#2563EB" />
+                                </TouchableOpacity>
+                                <TouchableOpacity style={styles.iconButton} onPress={() => onDelete(item)}>
+                                    <Feather name="trash-2" size={16} color="#DC2626" />
+                                </TouchableOpacity>
+                            </View>
                         </View>
                     ))}
-                </View>
+                </View> : null
             )}
-        </TouchableOpacity>
+        </View>
     );
 }
 
@@ -45,11 +65,17 @@ const styles = StyleSheet.create({
         shadowRadius: 2,
         elevation: 2,
     },
-    cardHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 24 },
+    cardHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
+    titleArea: { flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 },
+    titleTextArea: { flex: 1 },
     cardTitle: { fontSize: 16, fontWeight: 'bold', color: '#0F172A' },
-    cardContent: { fontSize: 14, color: '#64748B' },
-    recordList: { gap: 12 },
-    recordItem: { borderTopWidth: 1, borderTopColor: '#E2E8F0', paddingTop: 12 },
+    cardSummary: { fontSize: 13, color: '#64748B', marginTop: 3 },
+    cardContent: { fontSize: 14, color: '#64748B', marginTop: 18 },
+    recordList: { gap: 12, marginTop: 18 },
+    recordItem: { borderTopWidth: 1, borderTopColor: '#E2E8F0', paddingTop: 12, flexDirection: 'row', alignItems: 'center', gap: 12 },
+    recordTextArea: { flex: 1 },
     recordPrimary: { fontSize: 14, color: '#0F172A', fontWeight: '600' },
     recordSecondary: { fontSize: 13, color: '#64748B', marginTop: 4 },
+    recordActions: { flexDirection: 'row', gap: 8 },
+    iconButton: { width: 32, height: 32, borderRadius: 8, backgroundColor: '#F8FAFC', alignItems: 'center', justifyContent: 'center' },
 });

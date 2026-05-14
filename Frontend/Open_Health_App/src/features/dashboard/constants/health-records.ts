@@ -56,4 +56,10 @@ export const healthRecordActions: HealthRecordAction[] = [
         icon: 'edit-2',
         iconColor: '#10B981',
     },
+    {
+        type: 'exam',
+        label: 'Exame',
+        icon: 'file-text',
+        iconColor: '#0F766E',
+    },
 ];

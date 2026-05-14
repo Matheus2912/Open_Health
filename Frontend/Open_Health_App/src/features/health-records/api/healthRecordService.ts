@@ -1,5 +1,6 @@
 import { HealthRecordType } from '@/features/dashboard/types/dashboard.type';
 import {
+    ExamPdfResponse,
     HealthRecordRequestByType,
     HealthRecordResponseByType,
     HealthRecordsState,
@@ -60,6 +61,66 @@ export const healthRecordService = {
     ): Promise<HealthRecordResponseByType[TType]> => {
         return requestWithErrorHandling(() =>
             api.post<HealthRecordResponseByType[TType]>(endpointByType[type], payload, {
+                headers: getAuthHeader(token),
+            })
+        );
+    },
+
+    update: async <TType extends HealthRecordType>(
+        token: string,
+        type: TType,
+        id: string,
+        payload: HealthRecordRequestByType[TType]
+    ): Promise<HealthRecordResponseByType[TType]> => {
+        return requestWithErrorHandling(() =>
+            api.put<HealthRecordResponseByType[TType]>(`${endpointByType[type]}/${id}`, payload, {
+                headers: getAuthHeader(token),
+            })
+        );
+    },
+
+    remove: async (token: string, type: HealthRecordType, id: string): Promise<void> => {
+        await requestWithErrorHandling(() =>
+            api.delete<void>(`${endpointByType[type]}/${id}`, {
+                headers: getAuthHeader(token),
+            })
+        );
+    },
+
+    listExamPdfs: async (token: string): Promise<ExamPdfResponse[]> => {
+        return requestWithErrorHandling(() =>
+            api.get<ExamPdfResponse[]>('/exames-pdf', {
+                headers: getAuthHeader(token),
+            })
+        );
+    },
+
+    uploadExamPdf: async (token: string, file: { uri: string; name: string; type: string; file?: File }): Promise<ExamPdfResponse> => {
+        const formData = new FormData();
+
+        if (file.file) {
+            formData.append('arquivo', file.file);
+        } else {
+            formData.append('arquivo', {
+                uri: file.uri,
+                name: file.name,
+                type: file.type,
+            } as unknown as Blob);
+        }
+
+        return requestWithErrorHandling(() =>
+            api.post<ExamPdfResponse>('/exames-pdf', formData, {
+                headers: {
+                    ...getAuthHeader(token),
+                    'Content-Type': 'multipart/form-data',
+                },
+            })
+        );
+    },
+
+    removeExamPdf: async (token: string, id: string): Promise<void> => {
+        await requestWithErrorHandling(() =>
+            api.delete<void>(`/exames-pdf/${id}`, {
                 headers: getAuthHeader(token),
             })
         );

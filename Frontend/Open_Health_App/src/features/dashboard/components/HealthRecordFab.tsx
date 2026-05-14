@@ -1,13 +1,13 @@
 import { Feather } from '@expo/vector-icons';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-import { HealthRecordAction, HealthRecordType } from '@/features/dashboard/types/dashboard.type';
+import { DashboardActionType, HealthRecordAction } from '@/features/dashboard/types/dashboard.type';
 
 type HealthRecordFabProps = {
     actions: HealthRecordAction[];
     isOpen: boolean;
     onToggle: () => void;
-    onSelect: (type: HealthRecordType) => void;
+    onSelect: (type: DashboardActionType) => void;
 };
 
 export function HealthRecordFab({ actions, isOpen, onToggle, onSelect }: HealthRecordFabProps) {

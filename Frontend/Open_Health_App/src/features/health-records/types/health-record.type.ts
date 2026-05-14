@@ -77,4 +77,13 @@ export type HealthRecordListItem = {
     id: string;
     primaryText: string;
     secondaryText?: string;
+    originalRecord: HealthRecordResponseByType[HealthRecordType];
+};
+
+export type ExamPdfResponse = {
+    id: string;
+    nomeArquivo: string;
+    contentType: string;
+    tamanhoBytes: number;
+    criadoEm: string;
 };
