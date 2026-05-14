@@ -4,9 +4,11 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 type DashboardHeaderProps = {
     userName: string;
     onLogout: () => void;
+    onEmergencyPress: () => void;
+    onProfilePress: () => void;
 };
 
-export function DashboardHeader({ userName, onLogout }: DashboardHeaderProps) {
+export function DashboardHeader({ userName, onLogout, onEmergencyPress, onProfilePress }: DashboardHeaderProps) {
     return (
         <View style={styles.header}>
             <View style={styles.userInfoArea}>
@@ -20,9 +22,13 @@ export function DashboardHeader({ userName, onLogout }: DashboardHeaderProps) {
             </View>
 
             <View style={styles.headerActions}>
-                <TouchableOpacity style={styles.emergencyButton}>
+                <TouchableOpacity style={styles.emergencyButton} onPress={onEmergencyPress}>
                     <Feather name="shield" size={16} color="#EF4444" />
                     <Text style={styles.emergencyText}>Emergencia</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity onPress={onProfilePress} style={styles.logoutButton}>
+                    <Feather name="user" size={20} color="#0F172A" />
                 </TouchableOpacity>
 
                 <TouchableOpacity onPress={onLogout} style={styles.logoutButton}>

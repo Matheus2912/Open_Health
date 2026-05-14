@@ -9,8 +9,8 @@ function AppNavigator() {
     const { isAuthenticated } = useAuth();
 
     useEffect(() => {
-        const firstSegment = segments[0];
-        const inProtectedArea = firstSegment === '(tabs)';
+        const firstSegment = segments[0] as string | undefined;
+        const inProtectedArea = firstSegment === '(tabs)' || firstSegment === 'emergencia' || firstSegment === 'perfil';
         const inPublicArea = firstSegment === undefined || firstSegment === 'login' || firstSegment === 'cadastro';
 
         if (!isAuthenticated && inProtectedArea) {
@@ -28,6 +28,8 @@ function AppNavigator() {
             <Stack.Screen name="index" />
             <Stack.Screen name="login" />
             <Stack.Screen name="cadastro" />
+            <Stack.Screen name="emergencia" />
+            <Stack.Screen name="perfil" />
             <Stack.Screen name="(tabs)" />
         </Stack>
     );

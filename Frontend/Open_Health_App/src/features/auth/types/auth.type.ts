@@ -10,9 +10,12 @@ export interface ICadastroRequest {
     tipoSanguineo?: string;
     dataNascimento: string;
     sexo: string;
+    telefoneEmergencia?: string;
     senha: string;
     confirmarSenha: string;
 }
+
+export type IUsuarioUpdateRequest = Omit<ICadastroRequest, 'senha' | 'confirmarSenha'>;
 
 export interface IUsuarioResponse {
     id: string;
@@ -22,6 +25,7 @@ export interface IUsuarioResponse {
     tipoSanguineo: string;
     sexo: string;
     dataNascimento: string;
+    telefoneEmergencia?: string | null;
 }
 
 export interface IAuthResponse {

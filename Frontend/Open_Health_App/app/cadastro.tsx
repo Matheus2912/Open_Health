@@ -35,6 +35,18 @@ function formatCpf(rawValue: string) {
     return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9)}`;
 }
 
+function formatPhone(rawValue: string) {
+    const digits = rawValue.replace(/\D/g, '').slice(0, 11);
+
+    if (digits.length <= 2) {
+        return digits;
+    }
+    if (digits.length <= 7) {
+        return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+    }
+    return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+}
+
 function normalizeCpf(value: string) {
     return value.replace(/\D/g, '');
 }
@@ -107,6 +119,7 @@ export default function CadastroScreen() {
     const [cpf, setCpf] = useState('');
     const [senha, setSenha] = useState('');
     const [confirmarSenha, setConfirmarSenha] = useState('');
+    const [telefoneEmergencia, setTelefoneEmergencia] = useState('');
     const [erro, setErro] = useState('');
 
     async function handleRegister() {
@@ -141,6 +154,7 @@ export default function CadastroScreen() {
                 tipoSanguineo: bloodType === 'Nao selecionado' ? undefined : bloodType,
                 dataNascimento,
                 sexo: sex,
+                telefoneEmergencia: telefoneEmergencia.trim() || undefined,
                 senha,
                 confirmarSenha,
             });
@@ -221,6 +235,19 @@ export default function CadastroScreen() {
                                     <Text style={[styles.optionChipText, sex === option && styles.optionChipTextSelected]}>{option}</Text>
                                 </TouchableOpacity>
                             ))}
+                        </View>
+
+                        <Text style={styles.label}>Contato de Emergencia (Opcional)</Text>
+                        <View style={styles.inputContainerWhite}>
+                            <Feather name="phone" size={20} color="#94A3B8" style={styles.inputIcon} />
+                            <TextInput
+                                style={styles.input}
+                                placeholder="(11) 98765-4321"
+                                keyboardType="phone-pad"
+                                value={telefoneEmergencia}
+                                onChangeText={(value) => setTelefoneEmergencia(formatPhone(value))}
+                                maxLength={15}
+                            />
                         </View>
                     </View>
 

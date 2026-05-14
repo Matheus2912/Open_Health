@@ -1,7 +1,7 @@
 import { createContext, ReactNode, useContext, useState } from 'react';
 
 import { authService } from '@/features/auth/api/authService';
-import { ICadastroRequest, ILoginRequest, IUsuarioResponse } from '@/features/auth/types/auth.type';
+import { ICadastroRequest, ILoginRequest, IUsuarioResponse, IUsuarioUpdateRequest } from '@/features/auth/types/auth.type';
 
 type AuthContextValue = {
     isAuthenticated: boolean;
@@ -10,6 +10,8 @@ type AuthContextValue = {
     user: IUsuarioResponse | null;
     login: (credentials: ILoginRequest) => Promise<void>;
     register: (payload: ICadastroRequest) => Promise<void>;
+    updateProfile: (payload: IUsuarioUpdateRequest) => Promise<void>;
+    deleteProfile: () => Promise<void>;
     refreshProfile: () => Promise<void>;
     logout: () => void;
 };
@@ -61,6 +63,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     };
 
+    const updateProfile = async (payload: IUsuarioUpdateRequest) => {
+        if (!token) {
+            throw new Error('Sessao expirada. Faca login novamente.');
+        }
+
+        setIsLoading(true);
+        try {
+            const response = await authService.atualizarPerfil(token, payload);
+            setToken(response.token);
+            setUser(response.usuario);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const deleteProfile = async () => {
+        if (!token) {
+            throw new Error('Sessao expirada. Faca login novamente.');
+        }
+
+        setIsLoading(true);
+        try {
+            await authService.deletarPerfil(token);
+            setToken(null);
+            setUser(null);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const logout = () => {
         setToken(null);
         setUser(null);
@@ -73,6 +105,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user,
         login,
         register,
+        updateProfile,
+        deleteProfile,
         refreshProfile,
         logout,
     };
