@@ -12,4 +12,6 @@ public interface AlergiaRepository extends JpaRepository<Alergia, UUID> {
     List<Alergia> findByUsuarioEmailOrderByCriadoEmDesc(String email);
 
     Optional<Alergia> findByIdAndUsuarioEmail(UUID id, String email);
+
+    void deleteByUsuarioId(UUID usuarioId);
 }

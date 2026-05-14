@@ -4,7 +4,13 @@ import com.example.open_health.domain.Usuario;
 import com.example.open_health.dto.AuthResponse;
 import com.example.open_health.dto.UsuarioRequest;
 import com.example.open_health.dto.UsuarioResponse;
+import com.example.open_health.dto.UsuarioUpdateRequest;
+import com.example.open_health.repository.AlergiaRepository;
+import com.example.open_health.repository.CondicaoSaudeRepository;
+import com.example.open_health.repository.ExamePdfRepository;
+import com.example.open_health.repository.MedicamentoRepository;
 import com.example.open_health.repository.UsuarioRepository;
+import com.example.open_health.repository.VacinacaoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -14,6 +20,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class UsuarioAplication {
@@ -22,6 +30,11 @@ public class UsuarioAplication {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final AlergiaRepository alergiaRepository;
+    private final CondicaoSaudeRepository condicaoSaudeRepository;
+    private final MedicamentoRepository medicamentoRepository;
+    private final VacinacaoRepository vacinacaoRepository;
+    private final ExamePdfRepository examePdfRepository;
 
     @Transactional
     public UsuarioResponse cadastrar(UsuarioRequest request) {
@@ -47,6 +60,7 @@ public class UsuarioAplication {
         novoUsuario.setTipoSanguineo(request.tipoSanguineo());
         novoUsuario.setSexo(request.sexo());
         novoUsuario.setDataNascimento(request.dataNascimento());
+        novoUsuario.setTelefoneEmergencia(normalizarTelefone(request.telefoneEmergencia()));
         novoUsuario.setSenha(passwordEncoder.encode(request.senha()));
 
         repository.save(novoUsuario);
@@ -78,6 +92,57 @@ public class UsuarioAplication {
         return paraResponse(usuario);
     }
 
+    @Transactional
+    public AuthResponse atualizarPerfil(String emailAtual, UsuarioUpdateRequest request) {
+        Usuario usuario = repository.findByEmail(emailAtual)
+                .orElseThrow(() -> new RuntimeException("E-mail nao encontrado"));
+
+        String cpfNormalizado = normalizarCpf(request.cpf());
+        String emailNormalizado = request.email().trim();
+
+        if (repository.existsByEmailAndIdNot(emailNormalizado, usuario.getId())) {
+            throw new RuntimeException("E-mail ja cadastrado");
+        }
+        if (!cpfValido(cpfNormalizado)) {
+            throw new RuntimeException("CPF invalido");
+        }
+        if (repository.existsByCpfNormalizadoAndIdNot(cpfNormalizado, usuario.getId())) {
+            throw new RuntimeException("CPF ja cadastrado");
+        }
+
+        usuario.setNomeCompleto(request.nomeCompleto().trim());
+        usuario.setEmail(emailNormalizado);
+        usuario.setCpf(cpfNormalizado);
+        usuario.setTipoSanguineo(request.tipoSanguineo());
+        usuario.setSexo(request.sexo());
+        usuario.setDataNascimento(request.dataNascimento());
+        usuario.setTelefoneEmergencia(normalizarTelefone(request.telefoneEmergencia()));
+
+        Usuario usuarioAtualizado = repository.save(usuario);
+        String token = jwtService.gerarToken(
+                User.withUsername(usuarioAtualizado.getEmail())
+                        .password(usuarioAtualizado.getSenha())
+                        .authorities(java.util.List.of())
+                        .build()
+        );
+
+        return new AuthResponse(token, "Bearer", paraResponse(usuarioAtualizado));
+    }
+
+    @Transactional
+    public void deletarPerfil(String email) {
+        Usuario usuario = repository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("E-mail nao encontrado"));
+
+        UUID usuarioId = usuario.getId();
+        examePdfRepository.deleteByUsuarioId(usuarioId);
+        alergiaRepository.deleteByUsuarioId(usuarioId);
+        medicamentoRepository.deleteByUsuarioId(usuarioId);
+        vacinacaoRepository.deleteByUsuarioId(usuarioId);
+        condicaoSaudeRepository.deleteByUsuarioId(usuarioId);
+        repository.delete(usuario);
+    }
+
     private UsuarioResponse paraResponse(Usuario usuario) {
         return new UsuarioResponse(
                 usuario.getId(),
@@ -86,7 +151,8 @@ public class UsuarioAplication {
                 usuario.getCpf(),
                 usuario.getTipoSanguineo(),
                 usuario.getSexo(),
-                usuario.getDataNascimento()
+                usuario.getDataNascimento(),
+                usuario.getTelefoneEmergencia()
         );
     }
 
@@ -121,6 +187,14 @@ public class UsuarioAplication {
 
     private String normalizarCpf(String cpf) {
         return cpf.replaceAll("\\D", "");
+    }
+
+    private String normalizarTelefone(String telefone) {
+        if (telefone == null || telefone.isBlank()) {
+            return null;
+        }
+
+        return telefone.replaceAll("[^\\d+]", "");
     }
 
     private boolean cpfValido(String cpf) {

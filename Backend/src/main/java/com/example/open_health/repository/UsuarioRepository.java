@@ -12,6 +12,8 @@ public interface UsuarioRepository extends JpaRepository<Usuario, UUID> {
 
     boolean existsByEmail(String email);
 
+    boolean existsByEmailAndIdNot(String email, UUID id);
+
     boolean existsByCpf(String cpf);
 
     @Query("""
@@ -20,6 +22,14 @@ public interface UsuarioRepository extends JpaRepository<Usuario, UUID> {
             where replace(replace(u.cpf, '.', ''), '-', '') = :cpf
             """)
     boolean existsByCpfNormalizado(@Param("cpf") String cpf);
+
+    @Query("""
+            select count(u) > 0
+            from Usuario u
+            where replace(replace(u.cpf, '.', ''), '-', '') = :cpf
+            and u.id <> :id
+            """)
+    boolean existsByCpfNormalizadoAndIdNot(@Param("cpf") String cpf, @Param("id") UUID id);
 
     Optional<Usuario> findByEmail(String email);
 }

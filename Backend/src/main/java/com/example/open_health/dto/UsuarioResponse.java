@@ -10,6 +10,7 @@ public record UsuarioResponse(
         String cpf,
         String tipoSanguineo,
         String sexo,
-        LocalDate dataNascimento
+        LocalDate dataNascimento,
+        String telefoneEmergencia
 ) {
 }

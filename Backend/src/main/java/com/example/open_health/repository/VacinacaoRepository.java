@@ -12,4 +12,6 @@ public interface VacinacaoRepository extends JpaRepository<Vacinacao, UUID> {
     List<Vacinacao> findByUsuarioEmailOrderByDataDescCriadoEmDesc(String email);
 
     Optional<Vacinacao> findByIdAndUsuarioEmail(UUID id, String email);
+
+    void deleteByUsuarioId(UUID usuarioId);
 }

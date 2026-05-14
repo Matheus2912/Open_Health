@@ -12,4 +12,6 @@ public interface CondicaoSaudeRepository extends JpaRepository<CondicaoSaude, UU
     List<CondicaoSaude> findByUsuarioEmailOrderByCriadoEmDesc(String email);
 
     Optional<CondicaoSaude> findByIdAndUsuarioEmail(UUID id, String email);
+
+    void deleteByUsuarioId(UUID usuarioId);
 }

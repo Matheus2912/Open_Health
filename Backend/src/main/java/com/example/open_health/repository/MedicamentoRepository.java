@@ -12,4 +12,6 @@ public interface MedicamentoRepository extends JpaRepository<Medicamento, UUID> 
     List<Medicamento> findByUsuarioEmailOrderByCriadoEmDesc(String email);
 
     Optional<Medicamento> findByIdAndUsuarioEmail(UUID id, String email);
+
+    void deleteByUsuarioId(UUID usuarioId);
 }

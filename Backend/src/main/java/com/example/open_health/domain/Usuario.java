@@ -42,6 +42,9 @@ public class Usuario {
     @Column(nullable = false)
     private LocalDate dataNascimento;
 
+    @Column(nullable = true, length = 20)
+    private String telefoneEmergencia;
+
     @Column(nullable = false)
     private String senha;
 }
