@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Open_Health_App",
-    "slug": "Open_Health_App",
+    "name": "Open Health",
+    "slug": "open-health-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -12,6 +12,8 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.matheus.openhealth",
+      "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -43,6 +45,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "02f5c2cf-a208-4ef3-904b-f6299adbd003"
+      }
     }
   }
 }
