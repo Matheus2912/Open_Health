@@ -7,7 +7,7 @@ import { useAuth } from '@/features/auth/context/AuthContext';
 import { IUsuarioUpdateRequest } from '@/features/auth/types/auth.type';
 import { formatBirthDateInput, toIsoDate } from '@/features/health-records/utils/record-formatters';
 
-const bloodTypeOptions = ['Nao selecionado', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] as const;
+const bloodTypeOptions = ['Não selecionado', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] as const;
 const sexOptions = ['Masculino', 'Feminino', 'Outro'] as const;
 
 function formatCpf(rawValue: string) {
@@ -53,7 +53,7 @@ export default function ProfileScreen() {
     const [email, setEmail] = useState('');
     const [cpf, setCpf] = useState('');
     const [birthDate, setBirthDate] = useState('');
-    const [bloodType, setBloodType] = useState<(typeof bloodTypeOptions)[number]>('Nao selecionado');
+    const [bloodType, setBloodType] = useState<(typeof bloodTypeOptions)[number]>('Não selecionado');
     const [sex, setSex] = useState<(typeof sexOptions)[number]>('Masculino');
     const [telefoneEmergencia, setTelefoneEmergencia] = useState('');
     const [error, setError] = useState('');
@@ -67,7 +67,7 @@ export default function ProfileScreen() {
         setEmail(user.email);
         setCpf(formatCpf(user.cpf));
         setBirthDate(isoToDisplayDate(user.dataNascimento));
-        setBloodType((user.tipoSanguineo || 'Nao selecionado') as (typeof bloodTypeOptions)[number]);
+        setBloodType((user.tipoSanguineo || 'Não selecionado') as (typeof bloodTypeOptions)[number]);
         setSex((user.sexo || 'Masculino') as (typeof sexOptions)[number]);
         setTelefoneEmergencia(formatPhone(user.telefoneEmergencia ?? ''));
     }, [user]);
@@ -84,7 +84,7 @@ export default function ProfileScreen() {
             nomeCompleto: nomeCompleto.trim(),
             email: email.trim(),
             cpf,
-            tipoSanguineo: bloodType === 'Nao selecionado' ? undefined : bloodType,
+            tipoSanguineo: bloodType === 'Não selecionado' ? undefined : bloodType,
             dataNascimento,
             sexo: sex,
             telefoneEmergencia: telefoneEmergencia.trim() || undefined,
@@ -95,7 +95,7 @@ export default function ProfileScreen() {
             await updateProfile(payload);
             router.back();
         } catch (saveError) {
-            setError(saveError instanceof Error ? saveError.message : 'Nao foi possivel atualizar o perfil.');
+            setError(saveError instanceof Error ? saveError.message : 'Não foi possível atualizar o perfil.');
         }
     };
 
@@ -106,11 +106,11 @@ export default function ProfileScreen() {
                 await deleteProfile();
                 router.replace('/login');
             } catch (deleteError) {
-                setError(deleteError instanceof Error ? deleteError.message : 'Nao foi possivel deletar a conta.');
+                setError(deleteError instanceof Error ? deleteError.message : 'Não foi possível deletar a conta.');
             }
         };
 
-        if (Platform.OS === 'web' && window.confirm('Essa acao remove sua conta e seus dados vinculados. Deseja continuar?')) {
+        if (Platform.OS === 'web' && window.confirm('Essa ação remove sua conta e seus dados vinculados. Deseja continuar?')) {
             void deleteAccount();
             return;
         }
@@ -119,7 +119,7 @@ export default function ProfileScreen() {
             return;
         }
 
-        Alert.alert('Deletar conta', 'Essa acao remove sua conta e seus dados vinculados. Deseja continuar?', [
+        Alert.alert('Deletar conta', 'Essa ação remove sua conta e seus dados vinculados. Deseja continuar?', [
             { text: 'Cancelar', style: 'cancel' },
             {
                 text: 'Deletar',
@@ -138,7 +138,7 @@ export default function ProfileScreen() {
                 </TouchableOpacity>
 
                 <Text style={styles.title}>Meu Perfil</Text>
-                <Text style={styles.subtitle}>Edite seus dados e o contato usado na tela de emergencia</Text>
+                <Text style={styles.subtitle}>Edite seus dados e o contato usado na tela de emergência</Text>
 
                 <View style={styles.form}>
                     <Text style={styles.label}>Nome Completo</Text>
@@ -153,7 +153,7 @@ export default function ProfileScreen() {
                     <Text style={styles.label}>Data de Nascimento</Text>
                     <TextInput style={styles.input} value={birthDate} onChangeText={(value) => setBirthDate(formatBirthDateInput(value))} placeholder="DD/MM/AAAA" keyboardType="numeric" maxLength={10} />
 
-                    <Text style={styles.label}>Tipo Sanguineo</Text>
+                    <Text style={styles.label}>Tipo Sanguíneo</Text>
                     <View style={styles.selectorWrap}>
                         {bloodTypeOptions.map((option) => (
                             <TouchableOpacity key={option} style={[styles.optionChip, bloodType === option && styles.optionChipSelected]} onPress={() => setBloodType(option)}>
@@ -171,7 +171,7 @@ export default function ProfileScreen() {
                         ))}
                     </View>
 
-                    <Text style={styles.label}>Contato de Emergencia</Text>
+                    <Text style={styles.label}>Contato de Emergência</Text>
                     <TextInput
                         style={styles.input}
                         value={telefoneEmergencia}
@@ -183,7 +183,7 @@ export default function ProfileScreen() {
                     {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
                     <TouchableOpacity style={[styles.primaryButton, isLoading && styles.disabledButton]} onPress={handleSave} disabled={isLoading}>
-                        {isLoading ? <ActivityIndicator color="#FFFFFF" /> : <Text style={styles.primaryButtonText}>Salvar Alteracoes</Text>}
+                        {isLoading ? <ActivityIndicator color="#FFFFFF" /> : <Text style={styles.primaryButtonText}>Salvar Alterações</Text>}
                     </TouchableOpacity>
 
                     <TouchableOpacity style={styles.deleteButton} onPress={handleDelete} disabled={isLoading}>

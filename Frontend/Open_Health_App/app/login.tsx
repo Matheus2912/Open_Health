@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
+import { PasswordInput } from '@/features/auth/components/PasswordInput';
 import { useAuth } from '@/features/auth/context/AuthContext';
 
 export default function LoginScreen() {
@@ -25,7 +26,7 @@ export default function LoginScreen() {
                 senha,
             });
         } catch (error) {
-            setErro(error instanceof Error ? error.message : 'Nao foi possivel entrar.');
+            setErro(error instanceof Error ? error.message : 'Não foi possível entrar.');
         }
     }
 
@@ -58,10 +59,7 @@ export default function LoginScreen() {
                     </View>
 
                     <Text style={styles.label}>Senha</Text>
-                    <View style={styles.inputContainer}>
-                        <Feather name="lock" size={20} color="#94A3B8" style={styles.inputIcon} />
-                        <TextInput style={styles.input} placeholder="********" secureTextEntry value={senha} onChangeText={setSenha} />
-                    </View>
+                    <PasswordInput value={senha} onChangeText={setSenha} />
 
                     {erro ? <Text style={styles.errorText}>{erro}</Text> : null}
 
@@ -71,7 +69,7 @@ export default function LoginScreen() {
 
                     <TouchableOpacity style={styles.linkButton} onPress={() => router.push('/cadastro')}>
                         <Text style={styles.linkText}>
-                            Nao tem conta? <Text style={styles.linkTextBold}>Criar conta</Text>
+                            Não tem conta? <Text style={styles.linkTextBold}>Criar conta</Text>
                         </Text>
                     </TouchableOpacity>
                 </View>

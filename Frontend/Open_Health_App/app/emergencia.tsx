@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/features/auth/context/AuthContext';
 import { emptyHealthRecords, healthRecordService } from '@/features/health-records/api/healthRecordService';
 import { HealthRecordsState } from '@/features/health-records/types/health-record.type';
+import { formatDisplayText } from '@/features/health-records/utils/record-formatters';
 
 const fixedEmergencyContacts = [
     { name: 'SAMU', phone: '192' },
@@ -15,12 +16,12 @@ const fixedEmergencyContacts = [
 
 function calculateAge(birthDate?: string) {
     if (!birthDate) {
-        return 'Nao informado';
+        return 'Não informado';
     }
 
     const parsedDate = new Date(birthDate);
     if (Number.isNaN(parsedDate.getTime())) {
-        return 'Nao informado';
+        return 'Não informado';
     }
 
     const today = new Date();
@@ -62,7 +63,7 @@ export default function EmergencyScreen() {
             const response = await healthRecordService.listAll(token);
             setRecords(response);
         } catch (loadError) {
-            setError(loadError instanceof Error ? loadError.message : 'Nao foi possivel carregar as informacoes medicas.');
+            setError(loadError instanceof Error ? loadError.message : 'Não foi possível carregar as informações médicas.');
         } finally {
             setIsLoading(false);
         }
@@ -76,15 +77,15 @@ export default function EmergencyScreen() {
         () => [
             {
                 label: 'Alergias',
-                value: formatList(records.allergy.map((allergy) => `${allergy.nome}${allergy.gravidadeDescricao ? ` (${allergy.gravidadeDescricao})` : ''}`)),
+                value: formatList(records.allergy.map((allergy) => `${allergy.nome}${allergy.gravidadeDescricao ? ` (${formatDisplayText(allergy.gravidadeDescricao)})` : ''}`)),
             },
             {
                 label: 'Medicamentos',
                 value: formatList(records.medication.map((medication) => medication.medicamentoPosologia)),
             },
             {
-                label: 'Condicoes',
-                value: formatList(records.condition.map((condition) => condition.tipoProblemaDescricao || condition.descricao)),
+                label: 'Condições',
+                value: formatList(records.condition.map((condition) => formatDisplayText(condition.tipoProblemaDescricao) || condition.descricao)),
             },
         ],
         [records]
@@ -94,8 +95,8 @@ export default function EmergencyScreen() {
         () => [
             ...fixedEmergencyContacts,
             {
-                name: 'Contato de Emergencia',
-                phone: user?.telefoneEmergencia || 'Nao cadastrado',
+                name: 'Contato de Emergência',
+                phone: user?.telefoneEmergencia || 'Não cadastrado',
             },
         ],
         [user?.telefoneEmergencia]
@@ -114,21 +115,21 @@ export default function EmergencyScreen() {
                         <Feather name="alert-triangle" size={26} color="#EF4444" />
                     </View>
                     <View style={styles.alertTextArea}>
-                        <Text style={styles.alertTitle}>MODO DE EMERGENCIA</Text>
-                        <Text style={styles.alertSubtitle}>Informacoes Criticas de Saude</Text>
+                        <Text style={styles.alertTitle}>MODO DE EMERGÊNCIA</Text>
+                        <Text style={styles.alertSubtitle}>Informações Críticas de Saúde</Text>
                     </View>
                 </View>
 
                 <View style={styles.card}>
                     <View style={styles.sectionTitleArea}>
                         <Feather name="heart" size={18} color="#EF4444" />
-                        <Text style={styles.sectionTitle}>Informacoes Basicas</Text>
+                        <Text style={styles.sectionTitle}>Informações Básicas</Text>
                     </View>
 
                     <View style={styles.basicGrid}>
                         <View style={styles.basicItem}>
-                            <Text style={styles.basicLabel}>Tipo Sanguineo</Text>
-                            <Text style={styles.basicValue}>{user?.tipoSanguineo || 'Nao informado'}</Text>
+                            <Text style={styles.basicLabel}>Tipo Sanguíneo</Text>
+                            <Text style={styles.basicValue}>{user?.tipoSanguineo || 'Não informado'}</Text>
                         </View>
                         <View style={styles.basicItem}>
                             <Text style={styles.basicLabel}>Idade</Text>
@@ -140,13 +141,13 @@ export default function EmergencyScreen() {
                 <View style={styles.card}>
                     <View style={styles.sectionTitleArea}>
                         <Feather name="file-text" size={18} color="#2563EB" />
-                        <Text style={styles.sectionTitle}>Dados Medicos</Text>
+                        <Text style={styles.sectionTitle}>Dados Médicos</Text>
                     </View>
 
                     {isLoading ? (
                         <View style={styles.loadingArea}>
                             <ActivityIndicator color="#2563EB" />
-                            <Text style={styles.loadingText}>Carregando informacoes...</Text>
+                            <Text style={styles.loadingText}>Carregando informações...</Text>
                         </View>
                     ) : null}
 
@@ -163,11 +164,11 @@ export default function EmergencyScreen() {
                 <View style={styles.card}>
                     <View style={styles.sectionTitleArea}>
                         <Feather name="phone" size={18} color="#2563EB" />
-                        <Text style={styles.sectionTitle}>Contatos de Emergencia</Text>
+                        <Text style={styles.sectionTitle}>Contatos de Emergência</Text>
                     </View>
 
                     {emergencyContacts.map((contact) => {
-                        const canCall = contact.phone !== 'Nao cadastrado';
+                        const canCall = contact.phone !== 'Não cadastrado';
 
                         return (
                         <TouchableOpacity key={contact.name} style={[styles.contactButton, !canCall && styles.contactButtonDisabled]} onPress={() => canCall && callPhone(contact.phone)}>
@@ -184,12 +185,12 @@ export default function EmergencyScreen() {
                 <View style={styles.instructionsCard}>
                     <View style={styles.instructionsTitleArea}>
                         <Feather name="alert-triangle" size={16} color="#B45309" />
-                        <Text style={styles.instructionsTitle}>Instrucoes para Socorristas</Text>
+                        <Text style={styles.instructionsTitle}>Instruções para Socorristas</Text>
                     </View>
                     <Text style={styles.instructionText}>- Verifique as alergias antes de administrar medicamentos</Text>
-                    <Text style={styles.instructionText}>- Contate os numeros de emergencia acima</Text>
+                    <Text style={styles.instructionText}>- Contate os números de emergência acima</Text>
                     <Text style={styles.instructionText}>- Mantenha o paciente calmo e confortavel</Text>
-                    <Text style={styles.instructionText}>- Nao mova o paciente sem necessidade</Text>
+                    <Text style={styles.instructionText}>- Não mova o paciente sem necessidade</Text>
                 </View>
             </ScrollView>
         </SafeAreaView>

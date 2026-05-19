@@ -11,7 +11,7 @@ import {
     MedicationResponse,
     VaccinationResponse,
 } from '@/features/health-records/types/health-record.type';
-import { formatBirthDateInput, toIsoDate } from '@/features/health-records/utils/record-formatters';
+import { formatBirthDateInput, formatDisplayText, toIsoDate } from '@/features/health-records/utils/record-formatters';
 
 type HealthRecordFormModalProps = {
     visible: boolean;
@@ -23,22 +23,22 @@ type HealthRecordFormModalProps = {
     onSubmit: <TType extends HealthRecordType>(type: TType, payload: HealthRecordRequestByType[TType]) => Promise<void>;
 };
 
-const problemTypeOptions = ['Cardiaco', 'Pulmonar', 'Diabetes', 'Neurologico', 'Ortopedico', 'Dermatologico', 'Outro'];
-const allergySeverityOptions = ['Baixa', 'Media', 'Alta'];
-const vaccinationStatusOptions = ['Completo', 'Pendente', 'Reforco Necessario'];
+const problemTypeOptions = ['Cardíaco', 'Pulmonar', 'Diabetes', 'Neurológico', 'Ortopédico', 'Dermatológico', 'Outro'];
+const allergySeverityOptions = ['Baixa', 'Média', 'Alta'];
+const vaccinationStatusOptions = ['Completo', 'Pendente', 'Reforço Necessário'];
 
 const titleByType: Record<HealthRecordType, string> = {
-    condition: 'Adicionar Registro de Saude',
+    condition: 'Adicionar Registro de Saúde',
     medication: 'Adicionar Medicamento',
     allergy: 'Adicionar Alergia',
-    vaccination: 'Adicionar Vacinacao',
+    vaccination: 'Adicionar Vacinação',
 };
 
 const editTitleByType: Record<HealthRecordType, string> = {
-    condition: 'Editar Registro de Saude',
+    condition: 'Editar Registro de Saúde',
     medication: 'Editar Medicamento',
     allergy: 'Editar Alergia',
-    vaccination: 'Editar Vacinacao',
+    vaccination: 'Editar Vacinação',
 };
 
 function isoToDisplayDate(value?: string) {
@@ -48,6 +48,14 @@ function isoToDisplayDate(value?: string) {
 
     const [year, month, day] = value.split('-');
     return day && month && year ? `${day}/${month}/${year}` : value;
+}
+
+function todayDisplayDate() {
+    const today = new Date();
+    const day = String(today.getDate()).padStart(2, '0');
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const year = today.getFullYear();
+    return `${day}/${month}/${year}`;
 }
 
 export function HealthRecordFormModal({ visible, type, isSubmitting, error, initialRecord, onClose, onSubmit }: HealthRecordFormModalProps) {
@@ -78,12 +86,15 @@ export function HealthRecordFormModal({ visible, type, isSubmitting, error, init
         }
 
         if (!type || !initialRecord) {
+            if (type === 'vaccination') {
+                setDataVacina(todayDisplayDate());
+            }
             return;
         }
 
         if (type === 'condition') {
             const condition = initialRecord as ConditionResponse;
-            setTipoProblema(condition.tipoProblemaDescricao || problemTypeOptions[0]);
+            setTipoProblema(formatDisplayText(condition.tipoProblemaDescricao) || problemTypeOptions[0]);
             setDescricao(condition.descricao);
         }
 
@@ -94,14 +105,14 @@ export function HealthRecordFormModal({ visible, type, isSubmitting, error, init
         if (type === 'allergy') {
             const allergy = initialRecord as AllergyResponse;
             setNomeAlergia(allergy.nome);
-            setGravidade(allergy.gravidadeDescricao || allergySeverityOptions[0]);
+            setGravidade(formatDisplayText(allergy.gravidadeDescricao) || allergySeverityOptions[0]);
         }
 
         if (type === 'vaccination') {
             const vaccination = initialRecord as VaccinationResponse;
             setNomeVacina(vaccination.nomeVacina);
             setDataVacina(isoToDisplayDate(vaccination.data));
-            setStatusVacinacao(vaccination.statusDescricao || vaccinationStatusOptions[0]);
+            setStatusVacinacao(formatDisplayText(vaccination.statusDescricao) || vaccinationStatusOptions[0]);
         }
     }, [initialRecord, type, visible]);
 
@@ -114,7 +125,7 @@ export function HealthRecordFormModal({ visible, type, isSubmitting, error, init
 
         if (type === 'condition') {
             if (!descricao.trim()) {
-                setValidationError('Informe a descricao.');
+                setValidationError('Informe a descrição.');
                 return;
             }
             await onSubmit(type, { tipoProblema, descricao: descricao.trim() });
@@ -163,10 +174,10 @@ export function HealthRecordFormModal({ visible, type, isSubmitting, error, init
                     {type === 'condition' ? (
                         <View style={styles.form}>
                             <OptionSelect label="Tipo de Problema" options={problemTypeOptions} value={tipoProblema} onChange={setTipoProblema} />
-                            <Text style={styles.label}>Descricao</Text>
+                            <Text style={styles.label}>Descrição</Text>
                             <TextInput
                                 style={[styles.input, styles.textArea]}
-                                placeholder="Descreva o problema de saude..."
+                                placeholder="Descreva o problema de saúde..."
                                 value={descricao}
                                 onChangeText={setDescricao}
                                 multiline
@@ -214,7 +225,7 @@ export function HealthRecordFormModal({ visible, type, isSubmitting, error, init
                     {validationError || error ? <Text style={styles.errorText}>{validationError || error}</Text> : null}
 
                     <TouchableOpacity style={[styles.submitButton, isSubmitting && styles.submitButtonDisabled]} onPress={handleSubmit} disabled={isSubmitting}>
-                        {isSubmitting ? <ActivityIndicator color="#FFF" /> : <Text style={styles.submitText}>{initialRecord ? 'Salvar Alteracoes' : 'Salvar Registro'}</Text>}
+                        {isSubmitting ? <ActivityIndicator color="#FFF" /> : <Text style={styles.submitText}>{initialRecord ? 'Salvar Alterações' : 'Salvar Registro'}</Text>}
                     </TouchableOpacity>
                 </View>
             </View>

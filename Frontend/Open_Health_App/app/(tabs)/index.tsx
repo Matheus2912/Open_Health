@@ -5,8 +5,10 @@ import { useRouter } from 'expo-router';
 
 import { DashboardHeader } from '@/features/dashboard/components/DashboardHeader';
 import { ExamPdfCard } from '@/features/dashboard/components/ExamPdfCard';
+import { HelpModal } from '@/features/dashboard/components/HelpModal';
 import { HealthRecordFab } from '@/features/dashboard/components/HealthRecordFab';
 import { HealthRecordList } from '@/features/dashboard/components/HealthRecordList';
+import { SystemStatusBanner } from '@/features/dashboard/components/SystemStatusBanner';
 import { healthRecordActions, healthRecordSummaries } from '@/features/dashboard/constants/health-records';
 import { DashboardActionType, HealthRecordType } from '@/features/dashboard/types/dashboard.type';
 import { getFirstName } from '@/features/dashboard/utils/user-name';
@@ -15,6 +17,34 @@ import { HealthRecordFormModal } from '@/features/health-records/components/Heal
 import { emptyHealthRecords, healthRecordService } from '@/features/health-records/api/healthRecordService';
 import { ExamPdfResponse, HealthRecordListItem, HealthRecordRequestByType, HealthRecordResponseByType, HealthRecordsState } from '@/features/health-records/types/health-record.type';
 import { mapRecordsToListItems } from '@/features/health-records/utils/record-formatters';
+
+type StatusMessage = {
+    type: 'success' | 'error' | 'info';
+    text: string;
+};
+
+const recordSuccessMessages: Record<HealthRecordType, { created: string; updated: string; deleted: string }> = {
+    allergy: {
+        created: 'Alergia cadastrada.',
+        updated: 'Alergia atualizada com sucesso.',
+        deleted: 'Alergia excluída com sucesso.',
+    },
+    medication: {
+        created: 'Medicamento cadastrado.',
+        updated: 'Medicamento atualizado com sucesso.',
+        deleted: 'Medicamento excluído com sucesso.',
+    },
+    vaccination: {
+        created: 'Vacina cadastrada.',
+        updated: 'Vacina atualizada com sucesso.',
+        deleted: 'Vacina excluída com sucesso.',
+    },
+    condition: {
+        created: 'Condição de saúde cadastrada.',
+        updated: 'Condição de saúde atualizada com sucesso.',
+        deleted: 'Condição de saúde excluída com sucesso.',
+    },
+};
 
 export default function DashboardScreen() {
     const router = useRouter();
@@ -30,6 +60,17 @@ export default function DashboardScreen() {
     const [formError, setFormError] = useState('');
     const [editingRecord, setEditingRecord] = useState<HealthRecordResponseByType[HealthRecordType] | null>(null);
     const [examPdfs, setExamPdfs] = useState<ExamPdfResponse[]>([]);
+    const [statusMessage, setStatusMessage] = useState<StatusMessage | null>(null);
+    const [isHelpOpen, setIsHelpOpen] = useState(false);
+
+    useEffect(() => {
+        if (!statusMessage) {
+            return;
+        }
+
+        const timeoutId = setTimeout(() => setStatusMessage(null), 4500);
+        return () => clearTimeout(timeoutId);
+    }, [statusMessage]);
 
     const loadRecords = useCallback(async () => {
         if (!token) {
@@ -42,7 +83,7 @@ export default function DashboardScreen() {
             const response = await healthRecordService.listAll(token);
             setRecords(response);
         } catch (error) {
-            setRecordsError(error instanceof Error ? error.message : 'Nao foi possivel carregar os registros.');
+            setRecordsError(error instanceof Error ? error.message : 'Não foi possível carregar os registros.');
         } finally {
             setIsLoadingRecords(false);
         }
@@ -61,7 +102,7 @@ export default function DashboardScreen() {
             const response = await healthRecordService.listExamPdfs(token);
             setExamPdfs(response);
         } catch (error) {
-            setRecordsError(error instanceof Error ? error.message : 'Nao foi possivel carregar os PDFs.');
+            setRecordsError(error instanceof Error ? error.message : 'Não foi possível carregar os PDFs.');
         }
     }, [token]);
 
@@ -90,6 +131,11 @@ export default function DashboardScreen() {
     const handleLogout = () => {
         logout();
         router.replace('/login');
+    };
+
+    const showSuccess = (message: string) => {
+        setRecordsError('');
+        setStatusMessage({ type: 'success', text: message });
     };
 
     const handleSelectAction = (type: DashboardActionType) => {
@@ -122,7 +168,7 @@ export default function DashboardScreen() {
 
     const removeRecord = async (type: HealthRecordType, item: HealthRecordListItem) => {
         if (!token) {
-            setRecordsError('Sessao expirada. Faca login novamente.');
+            setRecordsError('Sessão expirada. Faça login novamente.');
             return;
         }
 
@@ -133,19 +179,20 @@ export default function DashboardScreen() {
                 ...currentRecords,
                 [type]: currentRecords[type].filter((record) => record.id !== item.id),
             }) as HealthRecordsState);
+            showSuccess(recordSuccessMessages[type].deleted);
         } catch (error) {
-            setRecordsError(error instanceof Error ? error.message : 'Nao foi possivel excluir o registro.');
+            setRecordsError(error instanceof Error ? error.message : 'Não foi possível excluir o registro.');
         }
     };
 
     const handleDeleteRecord = (type: HealthRecordType, item: HealthRecordListItem) => {
-        if (Platform.OS === 'web' && window.confirm('Deseja excluir esta informacao medica?')) {
+        if (Platform.OS === 'web' && window.confirm('Deseja excluir esta informação médica?')) {
             void removeRecord(type, item);
             return;
         }
 
         if (Platform.OS !== 'web') {
-            Alert.alert('Excluir registro', 'Deseja excluir esta informacao medica?', [
+            Alert.alert('Excluir registro', 'Deseja excluir esta informação médica?', [
                 { text: 'Cancelar', style: 'cancel' },
                 { text: 'Excluir', style: 'destructive', onPress: () => void removeRecord(type, item) },
             ]);
@@ -154,7 +201,7 @@ export default function DashboardScreen() {
 
     const handleAddExamPdf = async () => {
         if (!token) {
-            setRecordsError('Sessao expirada. Faca login novamente.');
+            setRecordsError('Sessão expirada. Faça login novamente.');
             return;
         }
 
@@ -172,7 +219,7 @@ export default function DashboardScreen() {
         const fileName = selectedFile.name || 'exame.pdf';
 
         if (!fileName.toLowerCase().endsWith('.pdf')) {
-            Alert.alert('Arquivo invalido', 'Selecione um arquivo PDF.');
+            Alert.alert('Arquivo inválido', 'Selecione um arquivo PDF.');
             return;
         }
 
@@ -187,8 +234,9 @@ export default function DashboardScreen() {
             });
             setExamPdfs((currentExams) => [createdExam, ...currentExams]);
             setExpandedSection('exam');
+            showSuccess('Exame cadastrado.');
         } catch (error) {
-            setRecordsError(error instanceof Error ? error.message : 'Nao foi possivel enviar o PDF.');
+            setRecordsError(error instanceof Error ? error.message : 'Não foi possível enviar o PDF.');
         } finally {
             setIsUploadingExam(false);
         }
@@ -196,7 +244,7 @@ export default function DashboardScreen() {
 
     const removeExamPdf = async (exam: ExamPdfResponse) => {
         if (!token) {
-            setRecordsError('Sessao expirada. Faca login novamente.');
+            setRecordsError('Sessão expirada. Faça login novamente.');
             return;
         }
 
@@ -204,8 +252,9 @@ export default function DashboardScreen() {
             setRecordsError('');
             await healthRecordService.removeExamPdf(token, exam.id);
             setExamPdfs((currentExams) => currentExams.filter((currentExam) => currentExam.id !== exam.id));
+            showSuccess('Exame excluído com sucesso.');
         } catch (error) {
-            setRecordsError(error instanceof Error ? error.message : 'Nao foi possivel excluir o PDF.');
+            setRecordsError(error instanceof Error ? error.message : 'Não foi possível excluir o PDF.');
         }
     };
 
@@ -225,7 +274,7 @@ export default function DashboardScreen() {
 
     const handleSubmitRecord = async <TType extends HealthRecordType>(type: TType, payload: HealthRecordRequestByType[TType]) => {
         if (!token) {
-            setFormError('Sessao expirada. Faca login novamente.');
+            setFormError('Sessão expirada. Faça login novamente.');
             return;
         }
 
@@ -240,6 +289,7 @@ export default function DashboardScreen() {
                 }) as HealthRecordsState);
                 setSelectedRecordType(null);
                 setEditingRecord(null);
+                showSuccess(recordSuccessMessages[type].updated);
                 return;
             }
 
@@ -250,8 +300,9 @@ export default function DashboardScreen() {
             }) as HealthRecordsState);
             setExpandedSection(type);
             setSelectedRecordType(null);
+            showSuccess(recordSuccessMessages[type].created);
         } catch (error) {
-            setFormError(error instanceof Error ? error.message : 'Nao foi possivel salvar o registro.');
+            setFormError(error instanceof Error ? error.message : 'Não foi possível salvar o registro.');
         } finally {
             setIsSubmitting(false);
         }
@@ -265,6 +316,7 @@ export default function DashboardScreen() {
                     onLogout={handleLogout}
                     onEmergencyPress={() => router.push('/emergencia' as never)}
                     onProfilePress={() => router.push('/perfil' as never)}
+                    onHelpPress={() => setIsHelpOpen(true)}
                 />
 
                 {isLoadingRecords ? (
@@ -274,8 +326,9 @@ export default function DashboardScreen() {
                     </View>
                 ) : null}
 
-                {recordsError ? <Text style={styles.errorText}>{recordsError}</Text> : null}
-                {isUploadingExam ? <Text style={styles.uploadingText}>Enviando exame...</Text> : null}
+                {statusMessage ? <SystemStatusBanner type={statusMessage.type} message={statusMessage.text} onDismiss={() => setStatusMessage(null)} /> : null}
+                {recordsError && !statusMessage ? <Text style={styles.errorText}>{recordsError}</Text> : null}
+                {isUploadingExam ? <SystemStatusBanner type="info" message="Enviando exame..." /> : null}
 
                 <HealthRecordList
                     records={healthRecordSummaries}
@@ -303,6 +356,8 @@ export default function DashboardScreen() {
                     onClose={handleCloseForm}
                     onSubmit={handleSubmitRecord}
                 />
+
+                <HelpModal visible={isHelpOpen} onClose={() => setIsHelpOpen(false)} />
             </View>
         </TouchableWithoutFeedback>
     );

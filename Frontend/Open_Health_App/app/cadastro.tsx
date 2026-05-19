@@ -3,9 +3,10 @@ import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
+import { PasswordInput } from '@/features/auth/components/PasswordInput';
 import { useAuth } from '@/features/auth/context/AuthContext';
 
-const bloodTypeOptions = ['Nao selecionado', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] as const;
+const bloodTypeOptions = ['Não selecionado', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] as const;
 const sexOptions = ['Masculino', 'Feminino', 'Outro'] as const;
 
 function formatBirthDate(rawValue: string) {
@@ -112,7 +113,7 @@ export default function CadastroScreen() {
     const router = useRouter();
     const { isLoading, register } = useAuth();
     const [birthDate, setBirthDate] = useState('');
-    const [bloodType, setBloodType] = useState<(typeof bloodTypeOptions)[number]>('Nao selecionado');
+    const [bloodType, setBloodType] = useState<(typeof bloodTypeOptions)[number]>('Não selecionado');
     const [sex, setSex] = useState<(typeof sexOptions)[number]>('Masculino');
     const [nomeCompleto, setNomeCompleto] = useState('');
     const [email, setEmail] = useState('');
@@ -126,7 +127,7 @@ export default function CadastroScreen() {
         const dataNascimento = toIsoDate(birthDate);
 
         if (!nomeCompleto.trim() || !email.trim() || !cpf.trim() || !birthDate.trim() || !senha || !confirmarSenha) {
-            setErro('Preencha todos os campos obrigatorios.');
+            setErro('Preencha todos os campos obrigatórios.');
             return;
         }
 
@@ -136,12 +137,12 @@ export default function CadastroScreen() {
         }
 
         if (!isValidCpf(cpf)) {
-            setErro('Digite um CPF valido.');
+            setErro('Digite um CPF válido.');
             return;
         }
 
         if (senha !== confirmarSenha) {
-            setErro('As senhas nao coincidem.');
+            setErro('As senhas não coincidem.');
             return;
         }
 
@@ -151,7 +152,7 @@ export default function CadastroScreen() {
                 nomeCompleto: nomeCompleto.trim(),
                 email: email.trim(),
                 cpf: normalizeCpf(cpf),
-                tipoSanguineo: bloodType === 'Nao selecionado' ? undefined : bloodType,
+                tipoSanguineo: bloodType === 'Não selecionado' ? undefined : bloodType,
                 dataNascimento,
                 sexo: sex,
                 telefoneEmergencia: telefoneEmergencia.trim() || undefined,
@@ -159,7 +160,7 @@ export default function CadastroScreen() {
                 confirmarSenha,
             });
         } catch (error) {
-            setErro(error instanceof Error ? error.message : 'Nao foi possivel criar a conta.');
+            setErro(error instanceof Error ? error.message : 'Não foi possível criar a conta.');
         }
     }
 
@@ -173,7 +174,7 @@ export default function CadastroScreen() {
 
                 <View style={styles.header}>
                     <Text style={styles.title}>Criar Conta</Text>
-                    <Text style={styles.subtitle}>Comece a gerenciar sua saude</Text>
+                    <Text style={styles.subtitle}>Comece a gerenciar sua saúde</Text>
                 </View>
 
                 <View style={styles.form}>
@@ -196,9 +197,9 @@ export default function CadastroScreen() {
                     </View>
 
                     <View style={styles.medicalBox}>
-                        <Text style={styles.medicalBoxTitle}>Dados Medicos</Text>
+                        <Text style={styles.medicalBoxTitle}>Dados Médicos</Text>
 
-                        <Text style={styles.label}>Tipo Sanguineo (Opcional)</Text>
+                        <Text style={styles.label}>Tipo Sanguíneo (Opcional)</Text>
                         <View style={styles.selectorWrap}>
                             {bloodTypeOptions.map((option) => (
                                 <TouchableOpacity
@@ -237,7 +238,7 @@ export default function CadastroScreen() {
                             ))}
                         </View>
 
-                        <Text style={styles.label}>Contato de Emergencia (Opcional)</Text>
+                        <Text style={styles.label}>Contato de Emergência (Opcional)</Text>
                         <View style={styles.inputContainerWhite}>
                             <Feather name="phone" size={20} color="#94A3B8" style={styles.inputIcon} />
                             <TextInput
@@ -252,16 +253,10 @@ export default function CadastroScreen() {
                     </View>
 
                     <Text style={styles.label}>Senha</Text>
-                    <View style={styles.inputContainer}>
-                        <Feather name="lock" size={20} color="#94A3B8" style={styles.inputIcon} />
-                        <TextInput style={styles.input} placeholder="********" secureTextEntry value={senha} onChangeText={setSenha} />
-                    </View>
+                    <PasswordInput value={senha} onChangeText={setSenha} />
 
                     <Text style={styles.label}>Confirmar Senha</Text>
-                    <View style={styles.inputContainer}>
-                        <Feather name="lock" size={20} color="#94A3B8" style={styles.inputIcon} />
-                        <TextInput style={styles.input} placeholder="********" secureTextEntry value={confirmarSenha} onChangeText={setConfirmarSenha} />
-                    </View>
+                    <PasswordInput value={confirmarSenha} onChangeText={setConfirmarSenha} />
 
                     {erro ? <Text style={styles.errorText}>{erro}</Text> : null}
 
@@ -271,7 +266,7 @@ export default function CadastroScreen() {
 
                     <TouchableOpacity style={styles.linkButton} onPress={() => router.push('/login')}>
                         <Text style={styles.linkText}>
-                            Ja tem uma conta? <Text style={styles.linkTextBold}>Faça login</Text>
+                            Já tem uma conta? <Text style={styles.linkTextBold}>Faça login</Text>
                         </Text>
                     </TouchableOpacity>
                 </View>

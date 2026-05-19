@@ -10,31 +10,31 @@ export const healthRecordSummaries: HealthRecordSummary[] = [
     },
     {
         type: 'medication',
-        title: 'Medicamentos de Uso Continuo',
+        title: 'Medicamentos de Uso Contínuo',
         icon: 'paperclip',
         iconColor: '#3B82F6',
         emptyText: 'Nenhum medicamento cadastrado',
     },
     {
         type: 'vaccination',
-        title: 'Vacinacao',
+        title: 'Vacinações',
         icon: 'edit-2',
         iconColor: '#10B981',
-        emptyText: 'Nenhuma vacina cadastrada',
+        emptyText: 'Nenhuma vacinação cadastrada',
     },
     {
         type: 'condition',
-        title: 'Condicoes de Saude',
+        title: 'Condições de Saúde',
         icon: 'activity',
         iconColor: '#8B5CF6',
-        emptyText: 'Nenhuma condicao cadastrada',
+        emptyText: 'Nenhuma condição cadastrada',
     },
 ];
 
 export const healthRecordActions: HealthRecordAction[] = [
     {
         type: 'condition',
-        label: 'Condicao de Saude',
+        label: 'Condição de Saúde',
         icon: 'activity',
         iconColor: '#8B5CF6',
     },
@@ -52,7 +52,7 @@ export const healthRecordActions: HealthRecordAction[] = [
     },
     {
         type: 'vaccination',
-        label: 'Vacinacao',
+        label: 'Vacinação',
         icon: 'edit-2',
         iconColor: '#10B981',
     },

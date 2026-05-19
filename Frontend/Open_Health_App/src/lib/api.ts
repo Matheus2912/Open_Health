@@ -2,10 +2,16 @@ import axios, { isAxiosError } from 'axios';
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 
+const PRODUCTION_API_URL = 'https://open-health-api.onrender.com';
+
 export function getApiBaseUrl() {
     const envUrl = process.env.EXPO_PUBLIC_API_URL?.trim();
     if (envUrl) {
         return envUrl.replace(/\/$/, '');
+    }
+
+    if (!__DEV__) {
+        return PRODUCTION_API_URL;
     }
 
     const hostUri =
@@ -34,7 +40,7 @@ export function extractErrorMessage(error: unknown) {
 
 export const api = axios.create({
     baseURL: getApiBaseUrl(),
-    timeout: 10000,
+    timeout: 60000,
     headers: {
         'Content-Type': 'application/json',
     },

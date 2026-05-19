@@ -65,7 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const updateProfile = async (payload: IUsuarioUpdateRequest) => {
         if (!token) {
-            throw new Error('Sessao expirada. Faca login novamente.');
+            throw new Error('Sessão expirada. Faça login novamente.');
         }
 
         setIsLoading(true);
@@ -80,7 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const deleteProfile = async () => {
         if (!token) {
-            throw new Error('Sessao expirada. Faca login novamente.');
+            throw new Error('Sessão expirada. Faça login novamente.');
         }
 
         setIsLoading(true);

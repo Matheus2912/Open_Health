@@ -9,6 +9,31 @@ import {
     VaccinationResponse,
 } from '@/features/health-records/types/health-record.type';
 
+const displayTextByValue: Record<string, string> = {
+    Baixa: 'Baixa',
+    Media: 'Média',
+    Alta: 'Alta',
+    Completo: 'Completo',
+    Pendente: 'Pendente',
+    'Reforço Necessário': 'Reforço Necessário',
+    'Reforco Necessario': 'Reforço Necessário',
+    Cardiaco: 'Cardíaco',
+    Pulmonar: 'Pulmonar',
+    Diabetes: 'Diabetes',
+    Neurologico: 'Neurológico',
+    Ortopedico: 'Ortopédico',
+    Dermatologico: 'Dermatológico',
+    Outro: 'Outro',
+};
+
+export function formatDisplayText(value?: string) {
+    if (!value) {
+        return '';
+    }
+
+    return displayTextByValue[value] ?? value;
+}
+
 export function formatBirthDateInput(rawValue: string) {
     const digits = rawValue.replace(/\D/g, '').slice(0, 8);
 
@@ -46,7 +71,7 @@ function mapRecordToListItem<TType extends HealthRecordType>(
         return {
             id: allergy.id,
             primaryText: allergy.nome,
-            secondaryText: allergy.gravidadeDescricao,
+            secondaryText: formatDisplayText(allergy.gravidadeDescricao),
             originalRecord: allergy,
         };
     }
@@ -65,7 +90,7 @@ function mapRecordToListItem<TType extends HealthRecordType>(
         return {
             id: vaccination.id,
             primaryText: vaccination.nomeVacina,
-            secondaryText: `${vaccination.data} - ${vaccination.statusDescricao}`,
+            secondaryText: `${vaccination.data} - ${formatDisplayText(vaccination.statusDescricao)}`,
             originalRecord: vaccination,
         };
     }
@@ -73,7 +98,7 @@ function mapRecordToListItem<TType extends HealthRecordType>(
     const condition = record as ConditionResponse;
     return {
         id: condition.id,
-        primaryText: condition.tipoProblemaDescricao,
+        primaryText: formatDisplayText(condition.tipoProblemaDescricao),
         secondaryText: condition.descricao,
         originalRecord: condition,
     };
