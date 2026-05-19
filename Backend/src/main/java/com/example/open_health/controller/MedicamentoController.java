@@ -2,7 +2,7 @@ package com.example.open_health.controller;
 
 import com.example.open_health.dto.MedicamentoRequest;
 import com.example.open_health.dto.MedicamentoResponse;
-import com.example.open_health.service.MedicamentoApplication;
+import com.example.open_health.service.MedicamentoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,7 +25,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class MedicamentoController {
 
-    private final MedicamentoApplication service;
+    private final MedicamentoService service;
 
     @PostMapping
     public ResponseEntity<MedicamentoResponse> criar(

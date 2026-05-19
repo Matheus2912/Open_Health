@@ -7,8 +7,8 @@ public record CondicaoSaudeRequest(
         @NotBlank(message = "Informe o tipo de problema")
         String tipoProblema,
 
-        @NotBlank(message = "Informe a descricao")
-        @Size(max = 500, message = "A descricao deve ter no maximo 500 caracteres")
+        @NotBlank(message = "Informe a descrição")
+        @Size(max = 500, message = "A descrição deve ter no máximo 500 caracteres")
         String descricao
 ) {
 }

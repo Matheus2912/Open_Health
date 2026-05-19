@@ -5,7 +5,8 @@ import com.example.open_health.dto.LoginRequest;
 import com.example.open_health.dto.UsuarioRequest;
 import com.example.open_health.dto.UsuarioResponse;
 import com.example.open_health.dto.UsuarioUpdateRequest;
-import com.example.open_health.service.UsuarioAplication;
+import com.example.open_health.service.AuthService;
+import com.example.open_health.service.UsuarioService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,23 +25,24 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class UsuarioController {
 
-    private final UsuarioAplication service;
+    private final UsuarioService usuarioService;
+    private final AuthService authService;
 
     @PostMapping("/registrar")
     public ResponseEntity<UsuarioResponse> registrar(@RequestBody @Valid UsuarioRequest request) {
-        UsuarioResponse response = service.cadastrar(request);
+        UsuarioResponse response = usuarioService.cadastrar(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody @Valid LoginRequest request) {
-        AuthResponse response = service.fazerLogin(request.email(), request.senha());
+        AuthResponse response = authService.fazerLogin(request.email(), request.senha());
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/perfil")
     public ResponseEntity<UsuarioResponse> perfil(Authentication authentication) {
-        UsuarioResponse response = service.buscarPerfil(authentication.getName());
+        UsuarioResponse response = usuarioService.buscarPerfil(authentication.getName());
         return ResponseEntity.ok(response);
     }
 
@@ -49,13 +51,13 @@ public class UsuarioController {
             Authentication authentication,
             @RequestBody @Valid UsuarioUpdateRequest request
     ) {
-        AuthResponse response = service.atualizarPerfil(authentication.getName(), request);
+        AuthResponse response = usuarioService.atualizarPerfil(authentication.getName(), request);
         return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/perfil")
     public ResponseEntity<Void> deletarPerfil(Authentication authentication) {
-        service.deletarPerfil(authentication.getName());
+        usuarioService.deletarPerfil(authentication.getName());
         return ResponseEntity.noContent().build();
     }
 }

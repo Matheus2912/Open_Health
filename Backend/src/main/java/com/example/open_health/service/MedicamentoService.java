@@ -4,8 +4,9 @@ import com.example.open_health.domain.Medicamento;
 import com.example.open_health.domain.Usuario;
 import com.example.open_health.dto.MedicamentoRequest;
 import com.example.open_health.dto.MedicamentoResponse;
+import com.example.open_health.exception.NotFoundException;
+import com.example.open_health.mapper.MedicamentoMapper;
 import com.example.open_health.repository.MedicamentoRepository;
-import com.example.open_health.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,28 +16,23 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class MedicamentoApplication {
+public class MedicamentoService {
 
     private final MedicamentoRepository repository;
-    private final UsuarioRepository usuarioRepository;
+    private final UsuarioFinder usuarioFinder;
+    private final MedicamentoMapper mapper;
 
     @Transactional
     public MedicamentoResponse criar(String emailUsuario, MedicamentoRequest request) {
-        Usuario usuario = buscarUsuarioPorEmail(emailUsuario);
-
-        Medicamento medicamento = new Medicamento();
-        medicamento.setUsuario(usuario);
-        preencherDados(medicamento, request);
-
-        repository.save(medicamento);
-
-        return paraResponse(medicamento);
+        Usuario usuario = usuarioFinder.buscarPorEmail(emailUsuario);
+        Medicamento medicamento = mapper.toEntity(request, usuario);
+        return mapper.toResponse(repository.save(medicamento));
     }
 
     public List<MedicamentoResponse> listar(String emailUsuario) {
         return repository.findByUsuarioEmailOrderByCriadoEmDesc(emailUsuario)
                 .stream()
-                .map(this::paraResponse)
+                .map(mapper::toResponse)
                 .toList();
     }
 
@@ -44,9 +40,9 @@ public class MedicamentoApplication {
     public MedicamentoResponse atualizar(String emailUsuario, UUID id, MedicamentoRequest request) {
         Medicamento medicamento = buscarMedicamentoDoUsuario(emailUsuario, id);
 
-        preencherDados(medicamento, request);
+        mapper.updateEntity(medicamento, request);
 
-        return paraResponse(medicamento);
+        return mapper.toResponse(medicamento);
     }
 
     @Transactional
@@ -55,26 +51,8 @@ public class MedicamentoApplication {
         repository.delete(medicamento);
     }
 
-    private void preencherDados(Medicamento medicamento, MedicamentoRequest request) {
-        medicamento.setMedicamentoPosologia(request.medicamentoPosologia().trim());
-    }
-
-    private Usuario buscarUsuarioPorEmail(String emailUsuario) {
-        return usuarioRepository.findByEmail(emailUsuario)
-                .orElseThrow(() -> new RuntimeException("Usuario nao encontrado"));
-    }
-
     private Medicamento buscarMedicamentoDoUsuario(String emailUsuario, UUID id) {
         return repository.findByIdAndUsuarioEmail(id, emailUsuario)
-                .orElseThrow(() -> new RuntimeException("Medicamento nao encontrado"));
-    }
-
-    private MedicamentoResponse paraResponse(Medicamento medicamento) {
-        return new MedicamentoResponse(
-                medicamento.getId(),
-                medicamento.getMedicamentoPosologia(),
-                medicamento.getCriadoEm(),
-                medicamento.getAtualizadoEm()
-        );
+                .orElseThrow(() -> new NotFoundException("Medicamento não encontrado"));
     }
 }

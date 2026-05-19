@@ -7,19 +7,19 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 public record UsuarioUpdateRequest(
-        @NotBlank(message = "O nome completo e obrigatorio")
+        @NotBlank(message = "O nome completo é obrigatório")
         String nomeCompleto,
 
-        @NotBlank(message = "O e-mail e obrigatorio")
-        @Email(message = "Formato de e-mail invalido")
+        @NotBlank(message = "O e-mail é obrigatório")
+        @Email(message = "Formato de e-mail inválido")
         String email,
 
-        @NotBlank(message = "O CPF e obrigatorio")
+        @NotBlank(message = "O CPF é obrigatório")
         String cpf,
 
         String tipoSanguineo,
 
-        @NotBlank(message = "O sexo e obrigatorio")
+        @NotBlank(message = "O sexo é obrigatório")
         String sexo,
 
         @NotNull(message = "A data de nascimento e obrigatoria")

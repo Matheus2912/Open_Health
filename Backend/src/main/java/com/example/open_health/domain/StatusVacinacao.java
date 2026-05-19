@@ -1,12 +1,14 @@
 package com.example.open_health.domain;
 
+import com.example.open_health.exception.BusinessException;
+
 import java.text.Normalizer;
 import java.util.Arrays;
 
 public enum StatusVacinacao {
     COMPLETO("Completo"),
     PENDENTE("Pendente"),
-    REFORCO_NECESSARIO("Reforco Necessario");
+    REFORCO_NECESSARIO("Reforço Necessário");
 
     private final String descricao;
 
@@ -24,7 +26,7 @@ public enum StatusVacinacao {
         return Arrays.stream(values())
                 .filter(status -> status.name().equals(valorNormalizado) || normalizar(status.descricao).equals(valorNormalizado))
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("Status da vacinacao invalido"));
+                .orElseThrow(() -> new BusinessException("Status da vacinação inválido"));
     }
 
     private static String normalizar(String valor) {

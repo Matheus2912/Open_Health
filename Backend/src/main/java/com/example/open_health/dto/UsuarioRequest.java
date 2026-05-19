@@ -8,19 +8,19 @@ import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 
 public record UsuarioRequest(
-        @NotBlank(message = "O nome completo e obrigatorio")
+        @NotBlank(message = "O nome completo é obrigatório")
         String nomeCompleto,
 
-        @NotBlank(message = "O e-mail e obrigatorio")
-        @Email(message = "Formato de e-mail invalido")
+        @NotBlank(message = "O e-mail é obrigatório")
+        @Email(message = "Formato de e-mail inválido")
         String email,
 
-        @NotBlank(message = "O CPF e obrigatorio")
+        @NotBlank(message = "O CPF é obrigatório")
         String cpf,
 
         String tipoSanguineo,
 
-        @NotBlank(message = "O sexo e obrigatorio")
+        @NotBlank(message = "O sexo é obrigatório")
         String sexo,
 
         @NotNull(message = "A data de nascimento e obrigatoria")
@@ -29,10 +29,10 @@ public record UsuarioRequest(
         String telefoneEmergencia,
 
         @NotBlank(message = "A senha e obrigatoria")
-        @Size(min = 8, message = "A senha deve ter no minimo 8 caracteres")
+        @Size(min = 8, message = "A senha deve ter no mínimo 8 caracteres")
         String senha,
 
-        @NotBlank(message = "A confirmacao de senha e obrigatoria")
+        @NotBlank(message = "A confirmação de senha é obrigatória")
         String confirmarSenha
 ) {
 }

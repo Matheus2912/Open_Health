@@ -2,7 +2,7 @@ package com.example.open_health.controller;
 
 import com.example.open_health.domain.ExamePdf;
 import com.example.open_health.dto.ExamePdfResponse;
-import com.example.open_health.service.ExamePdfApplication;
+import com.example.open_health.service.ExamePdfService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
@@ -27,7 +27,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ExamePdfController {
 
-    private final ExamePdfApplication service;
+    private final ExamePdfService service;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ExamePdfResponse> enviar(

@@ -1,11 +1,13 @@
 package com.example.open_health.domain;
 
+import com.example.open_health.exception.BusinessException;
+
 import java.text.Normalizer;
 import java.util.Arrays;
 
 public enum GravidadeAlergia {
     BAIXA("Baixa"),
-    MEDIA("Media"),
+    MEDIA("Média"),
     ALTA("Alta");
 
     private final String descricao;
@@ -24,7 +26,7 @@ public enum GravidadeAlergia {
         return Arrays.stream(values())
                 .filter(gravidade -> gravidade.name().equals(valorNormalizado) || normalizar(gravidade.descricao).equals(valorNormalizado))
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("Gravidade da alergia invalida"));
+                .orElseThrow(() -> new BusinessException("Gravidade da alergia inválida"));
     }
 
     private static String normalizar(String valor) {

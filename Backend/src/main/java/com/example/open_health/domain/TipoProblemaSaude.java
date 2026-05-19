@@ -1,15 +1,17 @@
 package com.example.open_health.domain;
 
+import com.example.open_health.exception.BusinessException;
+
 import java.text.Normalizer;
 import java.util.Arrays;
 
 public enum TipoProblemaSaude {
-    CARDIACO("Cardiaco"),
+    CARDIACO("Cardíaco"),
     PULMONAR("Pulmonar"),
     DIABETES("Diabetes"),
-    NEUROLOGICO("Neurologico"),
-    ORTOPEDICO("Ortopedico"),
-    DERMATOLOGICO("Dermatologico"),
+    NEUROLOGICO("Neurológico"),
+    ORTOPEDICO("Ortopédico"),
+    DERMATOLOGICO("Dermatológico"),
     OUTRO("Outro");
 
     private final String descricao;
@@ -28,7 +30,7 @@ public enum TipoProblemaSaude {
         return Arrays.stream(values())
                 .filter(tipo -> tipo.name().equals(valorNormalizado) || normalizar(tipo.descricao).equals(valorNormalizado))
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("Tipo de problema de saude invalido"));
+                .orElseThrow(() -> new BusinessException("Tipo de problema de saúde inválido"));
     }
 
     private static String normalizar(String valor) {
