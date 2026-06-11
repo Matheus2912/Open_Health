@@ -3,6 +3,7 @@ package com.example.open_health.service;
 import com.example.open_health.domain.Usuario;
 import com.example.open_health.repository.AlergiaRepository;
 import com.example.open_health.repository.CondicaoSaudeRepository;
+import com.example.open_health.repository.ConsultaRepository;
 import com.example.open_health.repository.ExamePdfRepository;
 import com.example.open_health.repository.MedicamentoRepository;
 import com.example.open_health.repository.UsuarioRepository;
@@ -22,9 +23,11 @@ public class UsuarioDeletionService {
     private final MedicamentoRepository medicamentoRepository;
     private final VacinacaoRepository vacinacaoRepository;
     private final ExamePdfRepository examePdfRepository;
+    private final ConsultaRepository consultaRepository;
 
     public void deletar(Usuario usuario) {
         UUID usuarioId = usuario.getId();
+        consultaRepository.deleteByUsuarioId(usuarioId);
         examePdfRepository.deleteByUsuarioId(usuarioId);
         alergiaRepository.deleteByUsuarioId(usuarioId);
         medicamentoRepository.deleteByUsuarioId(usuarioId);

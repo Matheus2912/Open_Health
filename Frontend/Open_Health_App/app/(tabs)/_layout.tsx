@@ -16,6 +16,13 @@ export default function TabLayout() {
                     tabBarIcon: ({ color }) => <Feather name="home" size={24} color={color} />,
                 }}
             />
+            <Tabs.Screen
+                name="consultas"
+                options={{
+                    title: 'Consultas',
+                    tabBarIcon: ({ color }) => <Feather name="calendar" size={24} color={color} />,
+                }}
+            />
         </Tabs>
     );
 }
